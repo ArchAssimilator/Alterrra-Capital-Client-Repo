@@ -22,6 +22,7 @@ Start
 
 - Deep research on comprehensive structural industry analysis
 - Deep research on acquisition target - investor memorandum
+- Deep resarch on management team
 
 - Advanced Data Analysis - new data set? Now that OpenAi is better. Need to check anthropic again. Check 
 
