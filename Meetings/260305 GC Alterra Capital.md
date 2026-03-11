@@ -1,5 +1,7 @@
 # Meeting Notes: GC Alterra Capital
 
+As recorded by MS Teams
+
 ## Current Workflow and Automation Opportunities at Altera
 
 Paul Maasdorp and Bruce Steen provided a detailed overview of Altera's internal processes, highlighting areas such as capital raising, opportunity evaluation, legal document management, portfolio company reporting, and back-office operations, and discussed where automation and AI could drive efficiency and cost savings.
