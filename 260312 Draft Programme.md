@@ -13,9 +13,13 @@
 
 ## Module 2 - DOCUMENT CREATING, MANIPULATION & REVIEW
 
-- Opportunity evaluation
-- Spreadsheet recreation
-- Presentation creation
+- Opportunity evaluation - find framework, run the framework
+
+- Spreadsheet recreation - RJ (chicken place)
+
+recreate + assumptions
+
+- Presentation creation - CB
 
 ### Interlude
 
@@ -23,10 +27,11 @@
 
 ## Module 3 - (DEEP) RESEARCH & (ADVANCED) DATA ANALYSIS
 
-- Deep Research: best practices
+- Deep Research: best practices - RJ 
 - Deep Research: comprehensive structural industry analysis (Gemini), and
 - Deep Research: acquisition target (OpenAI), or
 - Deep Research: management team (Claude)
+
 - Advanced Data Analysis: data set TBD
 
 ### Interlude
@@ -36,9 +41,10 @@
 ## Module 4 - AGENTS & WORKFLOWS
 
 - Custom GPTs & Gems
-- Agentic Browsers
 - Claude Cowork
-- Introduction to Narrative Coding & Workflow Engineering
+
+Private Equity demo
+Skills creation
 
 ### Interlude
 
