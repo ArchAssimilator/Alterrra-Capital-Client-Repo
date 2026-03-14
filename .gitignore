@@ -1,3 +1,182 @@
-# macOS Finder metadata
-.DS_Store
-**/.DS_Store
+# =============================================================================
+# README
+# =============================================================================
+#
+# This is the per-repo .gitignore template for archAssimilator projects.
+#
+#
+# WHAT THIS FILE IS
+# -----------------
+# It's a template — a starting point you copy into each new project. Think
+# of it like a form with optional sections.
+#
+# Every line in this top section starts with #, which means Git completely
+# ignores it. It's just notes for you (or anyone else on the team). It's
+# here so that six months from now, if you open the file and think "what's
+# going on here?", the answer is right in front of you.
+#
+#
+# WHAT WE'VE DONE
+# ----------------
+# A global .gitignore has been installed at ~/.gitignore_global and
+# registered with Git using:
+#
+#   git config --global core.excludesfile ~/.gitignore_global
+#
+# That global file already handles:
+#
+#   - macOS artefacts       (.DS_Store, ._*, .Spotlight-V100, .Trashes, etc.)
+#   - Cursor                (.cursor/, .cursorignore, .cursorindexingignore)
+#   - JetBrains IDEs        (.idea/, *.iml, *.iws, etc.)
+#   - VS Code               (.vscode/, *.code-workspace)
+#   - Sublime Text          (*.sublime-project, *.sublime-workspace)
+#   - Vim / Neovim          (*.swp, *.swo, *~, tags, etc.)
+#   - Emacs                 (*~, \#*\#, .emacs.desktop, etc.)
+#   - Environment files     (.env, .env.* — but NOT .env.example/.env.template)
+#   - Common build output   (node_modules/, __pycache__/, build/, dist/, etc.)
+#   - Terraform             (.terraform/, *.tfstate, etc.)
+#   - Windows/Linux clutter (Thumbs.db, Desktop.ini, .directory, etc.)
+#
+# Because all of the above is handled globally, you never need to repeat
+# any of those entries in this file.
+#
+#
+# THE COMMENTED-OUT SECTIONS BELOW
+# ---------------------------------
+# Further down this file you'll see blocks for Python, JavaScript, Java,
+# Go, Rust, and so on. Every line in those blocks also starts with #,
+# which means they are currently switched off — Git is not paying
+# attention to them.
+#
+# When you start a new project, you decide which language or framework
+# you are using and then delete the # at the start of each line in that
+# section. That "switches it on."
+#
+# For example, if you are writing a Python project, you would change
+# this:
+#
+#   # *.pyc
+#   # __pycache__/
+#   # .venv/
+#
+# to this:
+#
+#   *.pyc
+#   __pycache__/
+#   .venv/
+#
+# Now Git knows to ignore those Python files. You leave all the other
+# language sections alone (still switched off) because they don't apply
+# to that project.
+#
+#
+# WHY NOT JUST SWITCH EVERYTHING ON?
+# ------------------------------------
+# Because different languages produce different junk files. A Python
+# project will never generate .class files (that's Java), and a Java
+# project will never generate __pycache__/ folders (that's Python).
+# Ignoring things that don't exist is harmless but makes the file
+# cluttered and confusing. Cleaner to only activate what you actually
+# need.
+#
+#
+# THE SHORT VERSION
+# ------------------
+# 1. Copy this file into the root of your new repo.
+# 2. Find the section that matches your programming language.
+# 3. Delete the # from the start of each line in that section.
+# 4. Add any project-specific entries at the bottom.
+# 5. That's it. You're done.
+#
+#
+# Date: 260314
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# Python
+# -----------------------------------------------------------------------------
+# *.pyc
+# *.pyo
+# *.egg
+# *.egg-info/
+# __pycache__/
+# .venv/
+# venv/
+# .mypy_cache/
+# .pytest_cache/
+# .ruff_cache/
+# htmlcov/
+# *.cover
+
+# -----------------------------------------------------------------------------
+# JavaScript / TypeScript (Node.js)
+# -----------------------------------------------------------------------------
+# node_modules/
+# .next/
+# .nuxt/
+# .output/
+# .turbo/
+# *.tsbuildinfo
+# .eslintcache
+# .parcel-cache/
+
+# -----------------------------------------------------------------------------
+# Java / Kotlin / Gradle / Maven
+# -----------------------------------------------------------------------------
+# target/
+# *.class
+# *.jar
+# *.war
+# *.ear
+# .gradle/
+# build/
+# !gradle-wrapper.jar
+
+# -----------------------------------------------------------------------------
+# Go
+# -----------------------------------------------------------------------------
+# bin/
+# vendor/
+# *.exe
+# *.test
+# *.out
+
+# -----------------------------------------------------------------------------
+# Rust
+# -----------------------------------------------------------------------------
+# target/
+# Cargo.lock
+# **/*.rs.bk
+
+# -----------------------------------------------------------------------------
+# C / C++
+# -----------------------------------------------------------------------------
+# *.o
+# *.obj
+# *.so
+# *.dylib
+# *.a
+# *.exe
+# *.out
+# cmake-build-*/
+
+# -----------------------------------------------------------------------------
+# .NET / C#
+# -----------------------------------------------------------------------------
+# bin/
+# obj/
+# *.suo
+# *.user
+# *.userosscache
+# *.sln.docstates
+# packages/
+
+# -----------------------------------------------------------------------------
+# Docker
+# -----------------------------------------------------------------------------
+# docker-compose.override.yml
+
+# -----------------------------------------------------------------------------
+# Project-specific entries (add yours below)
+# -----------------------------------------------------------------------------
