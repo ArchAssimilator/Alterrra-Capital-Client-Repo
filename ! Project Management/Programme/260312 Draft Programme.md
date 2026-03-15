@@ -15,7 +15,7 @@
 
 - Opportunity evaluation - find framework, run the framework
 
-- Spreadsheet recreation - RJ (chicken place)
+- Spreadsheet recreation - Famous Brands (RJ)
 
 recreate + assumptions
 
@@ -37,13 +37,12 @@ recreate + assumptions
 ### Interlude
 
 - Daily Intelligence Brief
-- 
 - Personal OSINT Analysis - Online presence assessment
 
 ## Module 4 - AGENTS & WORKFLOWS
 
-- Custom GPTs & Gems - 
-- Claude Cowork
+- Custom GPTs & Gems - Labour 
+- Claude Cowork- Demo
 
 Private Equity demo
 
@@ -56,21 +55,6 @@ Skills creation - Deep Research Prompt creation per model
 ## Module 5 - PERSONAL PLAN
 
 - 90-day workplan
-
-
-
-- Custom GPT
-- Claude Cowork - Spreadsheet
-
-
-Questions
-
-How much of Copilot?
-How much of their process
-
-
-
-Version 2
 
 
 

@@ -64,6 +64,18 @@
 
 ## Slide 6
 
+**Title:** Temporal relevance matters
+
+**Subtitle:** Expired forecasts produce misleading findings
+
+- Baseline every source against the present date; a projection is only actionable if its reference period has not yet elapsed.
+- Aggressively filter expired forecasts, targets and planned initiatives whose timeframes have already concluded.
+- Treat elapsed milestones as spent or resolved — do not count committed resources or passed decision points as pending.
+- Seek the most recent version of any forecast and flag where revision history is unavailable.
+- Where a timeline is ambiguous, flag it as a limitation rather than making an assumption.
+
+## Slide 7
+
 **Title:** Which model when
 
 **Subtitle:** Match the model to the source environment
