@@ -11,7 +11,7 @@
 
 - Vibe coding exercise
 
-## Module 2 - DOCUMENT CREATING, MANIPULATION & REVIEW
+## Module 2 - DOCUMENT CREATION, MANIPULATION & REVIEW
 
 - Opportunity evaluation - find framework, run the framework
 
