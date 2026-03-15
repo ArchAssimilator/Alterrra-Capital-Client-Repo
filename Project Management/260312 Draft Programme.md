@@ -23,7 +23,7 @@ recreate + assumptions
 
 ### Interlude
 
-- Tabulated learning
+- Tabulated learning - on restaurant business
 
 ## Module 3 - (DEEP) RESEARCH & (ADVANCED) DATA ANALYSIS
 
@@ -36,15 +36,18 @@ recreate + assumptions
 
 ### Interlude
 
+- Daily Intelligence Brief
+- 
 - Personal OSINT Analysis - Online presence assessment
 
 ## Module 4 - AGENTS & WORKFLOWS
 
-- Custom GPTs & Gems
+- Custom GPTs & Gems - 
 - Claude Cowork
 
 Private Equity demo
-Skills creation
+
+Skills creation - Deep Research Prompt creation per model
 
 ### Interlude
 
@@ -103,7 +106,7 @@ Version 2
 - Recreate spreadsheet
 - Test assumptions within excel
 - Summarise Findings from spreadsheet
-- Input for Investment Commmittee Report
+- Input for Investment Committee Report
 
 4. Presentation creation
 
