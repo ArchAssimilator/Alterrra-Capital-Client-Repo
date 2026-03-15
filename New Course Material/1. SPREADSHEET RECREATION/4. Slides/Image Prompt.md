@@ -1,0 +1,8 @@
+# Nano Banana Pro: Image Prompt
+
+**Concept:** The Analyst's Burden (Sandton High-Rise)
+*Capturing the frustration of manual data entry in a high-stakes, authentic South African corporate environment.*
+
+**Prompt:**
+> A South African Black junior analyst sitting at a modern desk in a high-end private equity high-rise corporate office, visibly distraught and overwhelmed. He is working hard and labouring intensely over a sleek laptop. Scattered next to the laptop are thick printed annual reports, complex financial proposals, and loose papers. He is clearly stressed about manually retyping spreadsheet data. Through the expansive floor-to-ceiling glass windows behind him, there is a breathtaking, landscape panoramic view overlooking the iconic urban skyline of Sandton.
+> **Technical Execution**: Landscape orientation (16:9). Shot on Sony A1 II + 35mm f/1.4 GM lens. Editorial, high-resolution, professional corporate photography. Aperture f/2.0 creating depth of field with tack-sharp focus on the analyst's stressed expression, the laptop screen, and the intricate details of the financial papers. Creamy, high-quality bokeh elegantly softening the majestic Sandton skyline in the background. Warm, dynamic golden hour light streaming through the windows, contrasting with the cool, focused glow of the laptop. 50MP sensor detail capturing the subtle texture of the paper and the authentic emotion of the scene. 4k Upsampled, hyper-realistic, authentic South African corporate context, non-Eurocentric, premium private equity atmosphere.

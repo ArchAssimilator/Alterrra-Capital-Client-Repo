@@ -9,16 +9,12 @@
 
 ### Interlude
 
-- Vibe coding exercise
+- Vibe coding exercise (CB)
 
 ## Module 2 - DOCUMENT CREATION, MANIPULATION & REVIEW
 
-- Opportunity evaluation - find framework, run the framework
-
+- Opportunity evaluation - find framework, run the framework (CB)
 - Spreadsheet recreation - Famous Brands (RJ)
-
-recreate + assumptions
-
 - Presentation creation - CB
 
 ### Interlude
