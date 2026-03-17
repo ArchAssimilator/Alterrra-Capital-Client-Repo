@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chris Barker — Time Dashboard · 17 Feb – 17 Mar 2026</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e334d;
+      --text: #e8eaf0;
+      --muted: #7b82a0;
+      --accent1: #6c8ef5;   /* blue – work */
+      --accent2: #f5a623;   /* amber – parenting */
+      --accent3: #4ecdc4;   /* teal – finance */
+      --accent4: #ff6b6b;   /* red – travel */
+      --accent5: #a78bfa;   /* purple – learning */
+      --accent6: #34d399;   /* green – social */
+      --accent7: #fb7185;   /* pink – home/admin */
+      --accent8: #94a3b8;   /* grey – tech */
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 32px 24px 64px;
+    }
+
+    /* ── Header ─────────────────────────────────────────── */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+    }
+    .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+    .header .period {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .header .badge {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: right;
+    }
+    .header .badge strong { color: var(--text); font-size: 20px; display: block; }
+
+    /* ── Stat row ───────────────────────────────────────── */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .stat-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 8px; }
+    .stat-card .value { font-size: 28px; font-weight: 700; }
+    .stat-card .sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* ── Grid layout ────────────────────────────────────── */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .full { grid-column: 1 / -1; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .card h2 {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    /* ── Donut chart ────────────────────────────────────── */
+    .donut-wrap {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .donut-wrap svg { flex-shrink: 0; }
+    .legend { flex: 1; }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .legend-item .pct {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* ── Bar chart ──────────────────────────────────────── */
+    .bar-list { display: flex; flex-direction: column; gap: 12px; }
+    .bar-item {}
+    .bar-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+    .bar-meta .name { color: var(--text); }
+    .bar-meta .val { color: var(--muted); }
+    .bar-track {
+      height: 6px;
+      background: var(--surface2);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 99px;
+    }
+
+    /* ── Timeline / week view ───────────────────────────── */
+    .week-grid {
+      display: grid;
+      grid-template-columns: 80px repeat(4, 1fr);
+      gap: 10px;
+    }
+    .week-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+    .week-col {}
+    .week-col .wk-title { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; text-align: center; margin-bottom: 10px; }
+    .event-pill {
+      border-radius: 6px;
+      padding: 5px 8px;
+      font-size: 11px;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .event-pill .ep-time { font-size: 10px; opacity: 0.7; display: block; margin-bottom: 2px; }
+
+    /* ── Insight cards ──────────────────────────────────── */
+    .insights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .insight {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .insight .icon { font-size: 20px; margin-bottom: 8px; }
+    .insight .title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .insight .body { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    /* ── People list ────────────────────────────────────── */
+    .people-list { display: flex; flex-direction: column; gap: 10px; }
+    .person-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      color: #fff;
+    }
+    .person-info .name { font-size: 13px; font-weight: 500; }
+    .person-info .org { font-size: 11px; color: var(--muted); }
+    .person-count {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--surface2);
+      border-radius: 20px;
+      padding: 2px 10px;
+    }
+
+    /* ── Focus tags ─────────────────────────────────────── */
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag {
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      opacity: 0.9;
+    }
+
+    /* ── Colour helpers ─────────────────────────────────── */
+    .c1 { color: var(--accent1); }
+    .c2 { color: var(--accent2); }
+    .c3 { color: var(--accent3); }
+    .c4 { color: var(--accent4); }
+    .c5 { color: var(--accent5); }
+    .c6 { color: var(--accent6); }
+    .c7 { color: var(--accent7); }
+    .c8 { color: var(--accent8); }
+
+    .bg1 { background: var(--accent1); }
+    .bg2 { background: var(--accent2); }
+    .bg3 { background: var(--accent3); }
+    .bg4 { background: var(--accent4); }
+    .bg5 { background: var(--accent5); }
+    .bg6 { background: var(--accent6); }
+    .bg7 { background: var(--accent7); }
+    .bg8 { background: var(--accent8); }
+
+    .pill1 { background: rgba(108,142,245,0.12); color: var(--accent1); border: 1px solid rgba(108,142,245,0.25); }
+    .pill2 { background: rgba(245,166,35,0.12); color: var(--accent2); border: 1px solid rgba(245,166,35,0.25); }
+    .pill3 { background: rgba(78,205,196,0.12); color: var(--accent3); border: 1px solid rgba(78,205,196,0.25); }
+    .pill4 { background: rgba(255,107,107,0.12); color: var(--accent4); border: 1px solid rgba(255,107,107,0.25); }
+    .pill5 { background: rgba(167,139,250,0.12); color: var(--accent5); border: 1px solid rgba(167,139,250,0.25); }
+    .pill6 { background: rgba(52,211,153,0.12); color: var(--accent6); border: 1px solid rgba(52,211,153,0.25); }
+    .pill8 { background: rgba(148,163,184,0.12); color: var(--accent8); border: 1px solid rgba(148,163,184,0.25); }
+
+    .ep1 { background: rgba(108,142,245,0.15); color: #a8bbfa; }
+    .ep2 { background: rgba(245,166,35,0.15); color: #fac97b; }
+    .ep3 { background: rgba(78,205,196,0.15); color: #7ee8e3; }
+    .ep5 { background: rgba(167,139,250,0.15); color: #c4b5fd; }
+    .ep6 { background: rgba(52,211,153,0.15); color: #6ee7b7; }
+    .ep7 { background: rgba(251,113,133,0.15); color: #fda4af; }
+    .ep8 { background: rgba(148,163,184,0.15); color: #cbd5e1; }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────────── -->
+<div class="header">
+  <div>
+    <h1>Time &amp; Attention Dashboard</h1>
+    <div class="period">Chris Barker &nbsp;·&nbsp; 17 Feb – 17 Mar 2026 &nbsp;·&nbsp; 4 weeks</div>
+  </div>
+  <div style="display:flex; gap:12px;">
+    <div class="badge"><strong>46</strong>sent emails</div>
+    <div class="badge"><strong>~42 h</strong>logged calendar</div>
+    <div class="badge"><strong>28</strong>calendar events</div>
+  </div>
+</div>
+
+<!-- ── STAT ROW ──────────────────────────────────────────────── -->
+<div class="stat-row">
+  <div class="stat-card">
+    <div class="label">Biggest time block</div>
+    <div class="value c1">DM JHB Trip</div>
+    <div class="sub">GenAI Masterclass delivery · 2-day engagement · Feb 26–27</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Top email theme</div>
+    <div class="value c2">Parenting</div>
+    <div class="sub">~41% of sent mail · Kita school, birthday, ice skating</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Major upcoming</div>
+    <div class="value c4">Cape Town</div>
+    <div class="sub">FlySafair booked · First Car Rental · 8 Mar</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Active work stream</div>
+    <div class="value c5">AI Fellowship</div>
+    <div class="sub">Applied to Code for Africa AI Sandbox · 2 applications</div>
+  </div>
+</div>
+
+<!-- ── ROW 1: Two donuts ─────────────────────────────────────── -->
+<div class="grid-2">
+
+  <!-- Email breakdown -->
+  <div class="card">
+    <h2>Outgoing emails by category</h2>
+    <div class="donut-wrap">
+      <!-- Donut: total 46. Segments: Parenting 19, Finance 7, Business/AI 6, Travel 5, Social 4, Tech 3, Home 2 -->
+      <svg width="140" height="140" viewBox="0 0 140 140">
+        <circle cx="70" cy="70" r="54" fill="none" stroke="var(--surface2)" stroke-width="22"/>
+        <!-- Parenting 19/46 = 41.3% → 148.7° -->
+        <circle cx="70" cy="70" r="54" fill="none" stroke="#f5a623" stroke-width="22"
+          stroke-dasharray="62.0 96.8" stroke-dashoffset="0"
+          transform="rotate(-90 70 70)"/>
+        <!-- Finance 7/46 = 15.2% → 54.8° / 22.9 -->
+        <circle cx="70" cy="70" r="54" fill="none" stroke="#4ecdc4" stroke-width="22"
+          stroke-dasharray="22.9 135.9" stroke-dashoffset="-62.0"
+          transform="rotate(-90 70 70)"/>
+        <!-- Business/AI 6/46 = 13% → 46.9° / 19.6 -->
+        <circle cx="70" cy="70" r="54" fill="none" stroke="#6c8ef5" stroke-width="22"
+          stroke-dasharray="19.6 139.2" stroke-dashoffset="-84.9"
+          transform="rotate(-90 70 70)"/>
+        <!-- Travel 5/46 = 10.9% → 39.1° / 16.3 -->
+        <circle cx="70" cy="70" r="54" fill="none" stroke="#ff6b6b" stroke-width="22"
+          stroke-dasharray="16.3 142.5" stroke-dashoffset="-104.5"
+          transform="rotate(-90 70 70)"/>
+        <!-- Social 4/46 = 8.7% → 31.3° / 13.1 -->
+        <circle cx="70" cy="70" r="54" fill="none" stroke="#34d399" stroke-width="22"
+          stroke-dasharray="13.1 145.7" stroke-dashoffset="-120.8"
+          transform="rotate(-90 70 70)"/>
+        <!-- Tech 3/46 = 6.5% → 23.5° / 9.8 -->
+        <circle cx="70" cy="70" r="54" fill="none" stroke="#94a3b8" stroke-width="22"
+          stroke-dasharray="9.8 149" stroke-dashoffset="-133.9"
+          transform="rotate(-90 70 70)"/>
+        <!-- Home 2/46 = 4.3% → 15.7° / 6.5 -->
+        <circle cx="70" cy="70" r="54" fill="none" stroke="#fb7185" stroke-width="22"
+          stroke-dasharray="6.5 152.3" stroke-dashoffset="-143.7"
+          transform="rotate(-90 70 70)"/>
+        <text x="70" y="66" text-anchor="middle" fill="#e8eaf0" font-size="18" font-weight="700">46</text>
+        <text x="70" y="80" text-anchor="middle" fill="#7b82a0" font-size="10">emails sent</text>
+      </svg>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot bg2"></div>Parenting &amp; School<span class="pct">19 · 41%</span></div>
+        <div class="legend-item"><div class="legend-dot bg3"></div>Finance &amp; Admin<span class="pct">7 · 15%</span></div>
+        <div class="legend-item"><div class="legend-dot bg1"></div>Business &amp; AI<span class="pct">6 · 13%</span></div>
+        <div class="legend-item"><div class="legend-dot bg4"></div>Travel &amp; Logistics<span class="pct">5 · 11%</span></div>
+        <div class="legend-item"><div class="legend-dot bg6"></div>Personal &amp; Social<span class="pct">4 · 9%</span></div>
+        <div class="legend-item"><div class="legend-dot bg8"></div>Tools &amp; Tech<span class="pct">3 · 7%</span></div>
+        <div class="legend-item"><div class="legend-dot bg7"></div>Home &amp; Utilities<span class="pct">2 · 4%</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar time breakdown -->
+  <div class="card">
+    <h2>Calendar time by category (~42 hrs logged)</h2>
+    <div class="donut-wrap">
+      <!-- Work/AI delivery 22hrs=52%, Parenting 7hrs=17%, Social 4hrs=9.5%, Learning 2.5hrs=6%, BizDev 2hrs=4.8%, Home 2hrs=4.8%, Travel 2hrs=4.8% -->
+      <svg width="140" height="140" viewBox="0 0 140 140">
+        <circle cx="70" cy="70" r="54" fill="none" stroke="var(--surface2)" stroke-width="22"/>
+        <!-- Work/AI 22h 52% → 80.2 -->
+        <circle cx="70" cy="70" r="54" fill="none" stroke="#6c8ef5" stroke-width="22"
+          stroke-dasharray="80.2 78.6" stroke-dashoffset="0"
+          transform="rotate(-90 70 70)"/>
+        <!-- Parenting 7h 17% → 26.2 -->
+        <circle cx="70" cy="70" r="54" fill="none" stroke="#f5a623" stroke-width="22"
+          stroke-dasharray="26.2 132.6" stroke-dashoffset="-80.2"
+          transform="rotate(-90 70 70)"/>
+        <!-- Social 4h 9.5% → 14.6 -->
+        <circle cx="70" cy="70" r="54" fill="none" stroke="#34d399" stroke-width="22"
+          stroke-dasharray="14.6 144.2" stroke-dashoffset="-106.4"
+          transform="rotate(-90 70 70)"/>
+        <!-- Learning 2.5h 6% → 9.3 -->
+        <circle cx="70" cy="70" r="54" fill="none" stroke="#a78bfa" stroke-width="22"
+          stroke-dasharray="9.3 149.5" stroke-dashoffset="-121"
+          transform="rotate(-90 70 70)"/>
+        <!-- BizDev 2h 4.8% → 7.4 -->
+        <circle cx="70" cy="70" r="54" fill="none" stroke="#4ecdc4" stroke-width="22"
+          stroke-dasharray="7.4 151.4" stroke-dashoffset="-130.3"
+          transform="rotate(-90 70 70)"/>
+        <!-- Home 2h 4.8% → 7.4 -->
+        <circle cx="70" cy="70" r="54" fill="none" stroke="#fb7185" stroke-width="22"
+          stroke-dasharray="7.4 151.4" stroke-dashoffset="-137.7"
+          transform="rotate(-90 70 70)"/>
+        <text x="70" y="66" text-anchor="middle" fill="#e8eaf0" font-size="18" font-weight="700">~42</text>
+        <text x="70" y="80" text-anchor="middle" fill="#7b82a0" font-size="10">hrs logged</text>
+      </svg>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot bg1"></div>Client &amp; AI Work Delivery<span class="pct">22 h · 52%</span></div>
+        <div class="legend-item"><div class="legend-dot bg2"></div>Parenting &amp; Family<span class="pct">7 h · 17%</span></div>
+        <div class="legend-item"><div class="legend-dot bg6"></div>Social<span class="pct">4 h · 10%</span></div>
+        <div class="legend-item"><div class="legend-dot bg5"></div>Learning &amp; Community<span class="pct">2.5 h · 6%</span></div>
+        <div class="legend-item"><div class="legend-dot bg3"></div>Biz Dev &amp; Partnering<span class="pct">2 h · 5%</span></div>
+        <div class="legend-item"><div class="legend-dot bg7"></div>Home &amp; Admin<span class="pct">2 h · 5%</span></div>
+        <div class="legend-item"><div class="legend-dot bg8"></div>Travel (logged)<span class="pct">2 h · 5%</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── ROW 2: Weekly timeline ─────────────────────────────────── -->
+<div class="card" style="margin-bottom:20px;">
+  <h2>Week-by-week highlights</h2>
+  <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+
+    <!-- Week 1: Feb 17–23 -->
+    <div>
+      <div style="font-size:12px; color:var(--muted); text-align:center; padding-bottom:8px; border-bottom:1px solid var(--border); margin-bottom:12px; font-weight:600;">Wk 1 · Feb 17–23</div>
+      <div class="event-pill ep2">
+        <span class="ep-time">Tue 18 · Parent meeting</span>
+        HS meeting re: Nikita at Brescia
+      </div>
+      <div class="event-pill ep1">
+        <span class="ep-time">Tue 18 · Biz Dev</span>
+        Chris chat w/ Rowan Swartz &amp; QTFI team
+      </div>
+      <div class="event-pill ep5">
+        <span class="ep-time">Tue 18 · Learning</span>
+        GenAI for Advertising webinar (INMA)
+      </div>
+      <div class="event-pill ep2">
+        <span class="ep-time">Wed 19 · Parenting</span>
+        Multiple emails re Kita to Brescia &amp; Mimi
+      </div>
+      <div class="event-pill ep6">
+        <span class="ep-time">Sat 21 · Social</span>
+        Lunch at the Pfeiffers (4 hrs)
+      </div>
+    </div>
+
+    <!-- Week 2: Feb 24 – Mar 2 -->
+    <div>
+      <div style="font-size:12px; color:var(--muted); text-align:center; padding-bottom:8px; border-bottom:1px solid var(--border); margin-bottom:12px; font-weight:600;">Wk 2 · Feb 24 – Mar 2</div>
+      <div class="event-pill ep1">
+        <span class="ep-time">Wed 25 · Client Work</span>
+        DM GenAI (Exec) Masterclass Day 1 (8 hrs)
+      </div>
+      <div class="event-pill ep1">
+        <span class="ep-time">Thu–Fri 26–27 · Client Work</span>
+        DM JHB 2-day on-site engagement
+      </div>
+      <div class="event-pill ep1">
+        <span class="ep-time">Sat 28 · Biz Dev</span>
+        Martin meeting · Leaping Frog
+      </div>
+      <div class="event-pill ep3">
+        <span class="ep-time">Mon 2 Mar · Finance</span>
+        Dispute with Ithemba Property Mgmt
+      </div>
+      <div class="event-pill ep2">
+        <span class="ep-time">Tue 3 · Parenting</span>
+        School emails + FlySafair booked (CT trip)
+      </div>
+    </div>
+
+    <!-- Week 3: Mar 3–9 -->
+    <div>
+      <div style="font-size:12px; color:var(--muted); text-align:center; padding-bottom:8px; border-bottom:1px solid var(--border); margin-bottom:12px; font-weight:600;">Wk 3 · Mar 3–9</div>
+      <div class="event-pill ep1">
+        <span class="ep-time">Tue 3 · Business/AI</span>
+        Futureworld AI experts thread (JA + Matt)
+      </div>
+      <div class="event-pill ep2">
+        <span class="ep-time">Wed 4 · Parenting</span>
+        School research: Dainfern College inquiry
+      </div>
+      <div class="event-pill ep5">
+        <span class="ep-time">Wed 4 · Community</span>
+        GenAI First Wednesday (DM)
+      </div>
+      <div class="event-pill ep2">
+        <span class="ep-time">Thu 5 · Parenting</span>
+        Kita at Brescia – counsellor update
+      </div>
+      <div class="event-pill ep7">
+        <span class="ep-time">Sun 8 · Home</span>
+        Sewerage fault report to Joburg Water
+      </div>
+    </div>
+
+    <!-- Week 4: Mar 10–17 -->
+    <div>
+      <div style="font-size:12px; color:var(--muted); text-align:center; padding-bottom:8px; border-bottom:1px solid var(--border); margin-bottom:12px; font-weight:600;">Wk 4 · Mar 10–17</div>
+      <div class="event-pill ep3">
+        <span class="ep-time">Tue 10 · Finance</span>
+        Investment review w/ Andrew (NFB)
+      </div>
+      <div class="event-pill ep2">
+        <span class="ep-time">Thu 12 · Parenting</span>
+        Birthday party: TreeTop Adventures booked
+      </div>
+      <div class="event-pill ep1">
+        <span class="ep-time">Fri 13 · AI</span>
+        Code for Africa AI Fellowship applications
+      </div>
+      <div class="event-pill ep2">
+        <span class="ep-time">Sat 14 · Parenting</span>
+        Skate shop + ice skating lessons inquiry
+      </div>
+      <div class="event-pill ep2">
+        <span class="ep-time">Fri 13 · Parenting</span>
+        School policy on leaving mid-year (Brescia)
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── ROW 3: Key contacts + activity bars ────────────────────── -->
+<div class="grid-2" style="margin-bottom:20px;">
+
+  <!-- Top contacts -->
+  <div class="card">
+    <h2>Top people you engaged with (outbound)</h2>
+    <div class="people-list">
+      <div class="person-row">
+        <div class="avatar bg2">MJ</div>
+        <div class="person-info"><div class="name">Mimi Jordan</div><div class="org">Co-parent · mimi@thejordan.co.za</div></div>
+        <div class="person-count">7 emails</div>
+      </div>
+      <div class="person-row">
+        <div class="avatar" style="background:#5b7de8;">CB</div>
+        <div class="person-info"><div class="name">Brescia House School</div><div class="org">Counsellor, Head, Admin</div></div>
+        <div class="person-count">6 emails</div>
+      </div>
+      <div class="person-row">
+        <div class="avatar bg3">JA</div>
+        <div class="person-info"><div class="name">Jan-Adriaan du Plessis</div><div class="org">FutureWorld · Partner</div></div>
+        <div class="person-count">3 emails + 1:1</div>
+      </div>
+      <div class="person-row">
+        <div class="avatar bg4">TT</div>
+        <div class="person-info"><div class="name">TreeTop Adventures SA</div><div class="org">Birthday party booking</div></div>
+        <div class="person-count">4 emails</div>
+      </div>
+      <div class="person-row">
+        <div class="avatar bg1">TP</div>
+        <div class="person-info"><div class="name">TripIt / Travel logistics</div><div class="org">FlySafair · First Car Rental · Cape Town</div></div>
+        <div class="person-count">4 emails</div>
+      </div>
+      <div class="person-row">
+        <div class="avatar bg6">AD</div>
+        <div class="person-info"><div class="name">Andrew Duvenage</div><div class="org">NFB Private Wealth Management</div></div>
+        <div class="person-count">2 emails</div>
+      </div>
+      <div class="person-row">
+        <div class="avatar bg5">CF</div>
+        <div class="person-info"><div class="name">Code for Africa</div><div class="org">AI Sandbox Fellowship application</div></div>
+        <div class="person-count">2 emails</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity by category bar -->
+  <div class="card">
+    <h2>Email volume by category</h2>
+    <div class="bar-list">
+      <div class="bar-item">
+        <div class="bar-meta"><span class="name">🧒 Parenting &amp; School</span><span class="val">19 emails</span></div>
+        <div class="bar-track"><div class="bar-fill bg2" style="width:100%"></div></div>
+      </div>
+      <div class="bar-item">
+        <div class="bar-meta"><span class="name">💰 Finance &amp; Admin</span><span class="val">7 emails</span></div>
+        <div class="bar-track"><div class="bar-fill bg3" style="width:37%"></div></div>
+      </div>
+      <div class="bar-item">
+        <div class="bar-meta"><span class="name">🤖 Business &amp; AI Work</span><span class="val">6 emails</span></div>
+        <div class="bar-track"><div class="bar-fill bg1" style="width:32%"></div></div>
+      </div>
+      <div class="bar-item">
+        <div class="bar-meta"><span class="name">✈️ Travel &amp; Logistics</span><span class="val">5 emails</span></div>
+        <div class="bar-track"><div class="bar-fill bg4" style="width:26%"></div></div>
+      </div>
+      <div class="bar-item">
+        <div class="bar-meta"><span class="name">🤝 Personal &amp; Social</span><span class="val">4 emails</span></div>
+        <div class="bar-track"><div class="bar-fill bg6" style="width:21%"></div></div>
+      </div>
+      <div class="bar-item">
+        <div class="bar-meta"><span class="name">🛠 Tools &amp; Tech</span><span class="val">3 emails</span></div>
+        <div class="bar-track"><div class="bar-fill bg8" style="width:16%"></div></div>
+      </div>
+      <div class="bar-item">
+        <div class="bar-meta"><span class="name">🏠 Home &amp; Utilities</span><span class="val">2 emails</span></div>
+        <div class="bar-track"><div class="bar-fill bg7" style="width:11%"></div></div>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <h2>Calendar: largest single blocks</h2>
+    <div class="bar-list">
+      <div class="bar-item">
+        <div class="bar-meta"><span class="name">DM JHB 2-day engagement</span><span class="val">~12 hrs</span></div>
+        <div class="bar-track"><div class="bar-fill bg1" style="width:100%"></div></div>
+      </div>
+      <div class="bar-item">
+        <div class="bar-meta"><span class="name">DM GenAI Exec Masterclass (Day 1)</span><span class="val">8 hrs</span></div>
+        <div class="bar-track"><div class="bar-fill bg1" style="width:67%"></div></div>
+      </div>
+      <div class="bar-item">
+        <div class="bar-meta"><span class="name">Lunch at the Pfeiffers (social)</span><span class="val">4 hrs</span></div>
+        <div class="bar-track"><div class="bar-fill bg6" style="width:33%"></div></div>
+      </div>
+      <div class="bar-item">
+        <div class="bar-meta"><span class="name">Pool heater contractor (home)</span><span class="val">2 hrs</span></div>
+        <div class="bar-track"><div class="bar-fill bg7" style="width:17%"></div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── ROW 4: Key insights ─────────────────────────────────────── -->
+<div class="card" style="margin-bottom:20px;">
+  <h2>Key themes &amp; patterns</h2>
+  <div class="insights">
+
+    <div class="insight">
+      <div class="icon">🎓</div>
+      <div class="title">School situation is a major focus</div>
+      <div class="body">Kita's wellbeing at Brescia dominated your attention — multiple emails to the headmistress, counsellor, and Mimi about peer issues. You also researched two alternative schools (Dainfern College, Reddam House) and queried mid-year departure policy, suggesting a potential school change is being evaluated.</div>
+    </div>
+
+    <div class="insight">
+      <div class="icon">🤖</div>
+      <div class="title">GenAI delivery is your core work stream</div>
+      <div class="body">The Daily Maverick GenAI Exec Masterclass (two full days, Rosebank) was the heaviest calendar commitment of the month. You also attended the GenAI First Wednesday community call, participated in a FutureWorld AI experts thread, and applied to Code for Africa's AI Sandbox Fellowship — showing strong investment in staying at the frontier.</div>
+    </div>
+
+    <div class="insight">
+      <div class="icon">✈️</div>
+      <div class="title">Cape Town trip in motion</div>
+      <div class="body">You booked two FlySafair flights and a First Car Rental for a Cape Town trip on 8 Mar, forwarding all confirmations to TripIt. The car rental check-in experience frustrated you enough to send a complaint. A Joburg–CPT trip suggests either a client engagement or personal visit.</div>
+    </div>
+
+    <div class="insight">
+      <div class="icon">💰</div>
+      <div class="title">Financial admin is unusually active</div>
+      <div class="body">Multiple live threads: closing a UK Investec account, a detailed investment portfolio review with Andrew at NFB, overdue SARS tax return, an insurance renewal dispute (flagging inflated valuations), and an acrimonious exchange with Ithemba Property Management over an incorrect fine. All unresolved at varying stages.</div>
+    </div>
+
+    <div class="insight">
+      <div class="icon">🎂</div>
+      <div class="title">Kita's 13th birthday being planned</div>
+      <div class="body">Active planning for a birthday party — booked TreeTop Adventures for Saturday 28 March (8–12 girls), confirmed a R600 deposit, bought first ice skates, and initiated ice skating lessons. Shows significant personal effort going into making this milestone special.</div>
+    </div>
+
+    <div class="insight">
+      <div class="icon">⚡</div>
+      <div class="title">Friction &amp; advocacy pattern</div>
+      <div class="body">Several emails show you taking a firm advocacy stance: confronting Ithemba over a wrongful fine, complaining to Granola about product regression, pushing back on First Car Rental, and requesting removal from Altron mailing lists. You assert yourself clearly when services fall short.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── ROW 5: Focus tags ──────────────────────────────────────── -->
+<div class="card">
+  <h2>Your attention in one line</h2>
+  <div class="tags" style="margin-top:4px;">
+    <span class="tag pill1">AI &amp; GenAI delivery</span>
+    <span class="tag pill2">Kita's school &amp; wellbeing</span>
+    <span class="tag pill2">Birthday planning</span>
+    <span class="tag pill3">Portfolio &amp; investments</span>
+    <span class="tag pill3">Insurance renewal</span>
+    <span class="tag pill3">Tax return</span>
+    <span class="tag pill4">Cape Town trip</span>
+    <span class="tag pill5">AI Fellowship (Code for Africa)</span>
+    <span class="tag pill5">FutureWorld partnership</span>
+    <span class="tag pill6">Social networking (Pfeiffers, QTFI)</span>
+    <span class="tag pill8">Granola · SuperUltra (tech frustrations)</span>
+    <span class="tag pill2">School research: Dainfern · Reddam</span>
+  </div>
+</div>
+
+<div style="margin-top:32px; font-size:11px; color:#3d4260; text-align:center;">
+  Generated 17 Mar 2026 · Source: Google Calendar &amp; Gmail (sent mail)
+</div>
+
+</body>
+</html>
