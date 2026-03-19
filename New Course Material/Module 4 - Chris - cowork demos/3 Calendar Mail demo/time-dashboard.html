@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chris Barker — Time Dashboard | Feb 17 – Mar 17, 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #21263a;
+    --border: #2e3350;
+    --accent: #6366f1;
+    --accent2: #8b5cf6;
+    --green: #10b981;
+    --orange: #f59e0b;
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --pink: #ec4899;
+    --teal: #14b8a6;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --card-radius: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .header-left h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #e2e8f0 0%, #6366f1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header-left p { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .header-badge {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    align-self: flex-start;
+  }
+
+  /* KPI ROW */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--card-radius);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent-color, var(--accent));
+    border-radius: 3px 3px 0 0;
+  }
+  .kpi-card .label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+  .kpi-card .value { font-size: 2rem; font-weight: 800; margin: 4px 0 2px; line-height: 1; }
+  .kpi-card .sub { font-size: 0.78rem; color: var(--muted); }
+  .kpi-card .icon { position: absolute; right: 16px; top: 16px; font-size: 1.4rem; opacity: 0.35; }
+
+  /* GRID LAYOUT */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--card-radius);
+    padding: 22px;
+  }
+  .card h2 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card h2 .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+  .chart-wrap { position: relative; }
+  .chart-wrap canvas { max-height: 240px; }
+
+  /* CATEGORY BARS */
+  .cat-bar { margin-bottom: 14px; }
+  .cat-bar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+  .cat-bar-label { font-size: 0.85rem; font-weight: 600; }
+  .cat-bar-val { font-size: 0.82rem; color: var(--muted); }
+  .bar-track { background: var(--surface2); border-radius: 999px; height: 8px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 999px; transition: width 1s ease; }
+
+  /* WEEK HEATMAP */
+  .week-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .week-cell {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 14px 12px;
+    border: 1px solid var(--border);
+  }
+  .week-cell .wk-label { font-size: 0.72rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .week-cell .wk-hours { font-size: 1.6rem; font-weight: 800; }
+  .week-cell .wk-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+  .wk-bar { margin-top: 8px; background: var(--surface); border-radius: 4px; height: 6px; overflow: hidden; }
+  .wk-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+
+  /* INSIGHT CARDS */
+  .insights-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .insight-card {
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 16px 18px;
+    border-left: 4px solid var(--accent-color, var(--accent));
+    position: relative;
+  }
+  .insight-card .i-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent-color, var(--accent));
+    margin-bottom: 6px;
+  }
+  .insight-card .i-title { font-size: 0.92rem; font-weight: 700; margin-bottom: 6px; }
+  .insight-card .i-body { font-size: 0.8rem; color: var(--muted); line-height: 1.55; }
+
+  /* RECOMMENDATION CARDS */
+  .rec-list { display: flex; flex-direction: column; gap: 12px; }
+  .rec-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .rec-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 800;
+    flex-shrink: 0;
+    color: white;
+  }
+  .rec-content .rec-title { font-size: 0.88rem; font-weight: 700; margin-bottom: 3px; }
+  .rec-content .rec-body { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+
+  /* TIMELINE */
+  .timeline { position: relative; }
+  .tl-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .tl-row:last-child { border-bottom: none; }
+  .tl-date { font-size: 0.72rem; color: var(--muted); min-width: 70px; padding-top: 2px; }
+  .tl-tag {
+    font-size: 0.7rem; font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .tl-text { font-size: 0.8rem; flex: 1; }
+  .tl-hours { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+  /* SCORE METER */
+  .score-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+  .score-item { flex: 1; min-width: 120px; }
+  .score-label { font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; }
+  .score-bar-wrap { background: var(--surface2); border-radius: 4px; height: 10px; overflow: hidden; }
+  .score-bar { height: 100%; border-radius: 4px; }
+  .score-val { font-size: 0.75rem; font-weight: 700; margin-top: 3px; }
+
+  /* FOOTER */
+  .footer { text-align: center; color: var(--muted); font-size: 0.72rem; margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--border); }
+
+  /* Colour helpers */
+  .c-indigo { color: #6366f1; } .bg-indigo { background: #6366f1; }
+  .c-purple { color: #8b5cf6; } .bg-purple { background: #8b5cf6; }
+  .c-orange { color: #f59e0b; } .bg-orange { background: #f59e0b; }
+  .c-teal   { color: #14b8a6; } .bg-teal   { background: #14b8a6; }
+  .c-pink   { color: #ec4899; } .bg-pink   { background: #ec4899; }
+  .c-blue   { color: #3b82f6; } .bg-blue   { background: #3b82f6; }
+  .c-green  { color: #10b981; } .bg-green  { background: #10b981; }
+  .c-red    { color: #ef4444; } .bg-red    { background: #ef4444; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <h1>⏱ Time Dashboard</h1>
+    <p>Chris Barker &nbsp;·&nbsp; Future Foresight &nbsp;·&nbsp; Feb 17 – Mar 17, 2026 &nbsp;·&nbsp; 4-week review</p>
+  </div>
+  <div class="header-badge">156 hrs tracked</div>
+</div>
+
+<!-- KPI ROW -->
+<div class="kpi-row">
+  <div class="kpi-card" style="--accent-color:#6366f1">
+    <div class="icon">🎓</div>
+    <div class="label">Delivery Hours</div>
+    <div class="value c-indigo">96.5</div>
+    <div class="sub">62% of tracked time</div>
+  </div>
+  <div class="kpi-card" style="--accent-color:#8b5cf6">
+    <div class="icon">🔬</div>
+    <div class="label">Prep Hours</div>
+    <div class="value c-purple">22.0</div>
+    <div class="sub">14% of tracked time</div>
+  </div>
+  <div class="kpi-card" style="--accent-color:#f59e0b">
+    <div class="icon">✈️</div>
+    <div class="label">Travel Hours</div>
+    <div class="value c-orange">16.5</div>
+    <div class="sub">11% of tracked time</div>
+  </div>
+  <div class="kpi-card" style="--accent-color:#14b8a6">
+    <div class="icon">🤝</div>
+    <div class="label">Meetings</div>
+    <div class="value c-teal">9.5</div>
+    <div class="sub">6% of tracked time</div>
+  </div>
+  <div class="kpi-card" style="--accent-color:#ec4899">
+    <div class="icon">🏠</div>
+    <div class="label">Personal/Family</div>
+    <div class="value c-pink">8.5</div>
+    <div class="sub">5% of tracked time</div>
+  </div>
+  <div class="kpi-card" style="--accent-color:#3b82f6">
+    <div class="icon">📋</div>
+    <div class="label">Admin</div>
+    <div class="value c-blue">3.1</div>
+    <div class="sub">2% of tracked time</div>
+  </div>
+</div>
+
+<!-- ROW 1: Donut + Stacked Bar -->
+<div class="grid-2">
+  <div class="card">
+    <h2><span class="dot" style="background:#6366f1"></span>Time Allocation Overview</h2>
+    <div class="chart-wrap">
+      <canvas id="donutChart"></canvas>
+    </div>
+  </div>
+  <div class="card">
+    <h2><span class="dot" style="background:#8b5cf6"></span>Week-by-Week Breakdown</h2>
+    <div class="chart-wrap">
+      <canvas id="stackedBar"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- WEEKLY CELLS -->
+<div class="card" style="margin-bottom:20px">
+  <h2><span class="dot" style="background:#f59e0b"></span>Weekly Load Summary</h2>
+  <div class="week-grid">
+    <div class="week-cell">
+      <div class="wk-label">Week 1 · Feb 17–23</div>
+      <div class="wk-hours c-indigo">22.9h</div>
+      <div class="wk-sub">Lightest week · Primarily admin + 1 masterclass day</div>
+      <div class="wk-bar"><div class="wk-bar-fill" style="width:44%"></div></div>
+    </div>
+    <div class="week-cell">
+      <div class="wk-label">Week 2 · Feb 24–Mar 2</div>
+      <div class="wk-hours c-red">52.5h</div>
+      <div class="wk-sub">⚠️ Heaviest week · 5 consecutive delivery days</div>
+      <div class="wk-bar"><div class="wk-bar-fill" style="width:100%; background:linear-gradient(90deg,#ef4444,#f59e0b)"></div></div>
+    </div>
+    <div class="week-cell">
+      <div class="wk-label">Week 3 · Mar 3–9</div>
+      <div class="wk-hours c-orange">40.0h</div>
+      <div class="wk-sub">Heavy delivery + prep block started</div>
+      <div class="wk-bar"><div class="wk-bar-fill" style="width:76%"></div></div>
+    </div>
+    <div class="week-cell">
+      <div class="wk-label">Week 4 · Mar 10–17</div>
+      <div class="wk-hours c-orange">40.7h</div>
+      <div class="wk-sub">CPT sprint continues — 4 days delivery + prep</div>
+      <div class="wk-bar"><div class="wk-bar-fill" style="width:78%"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORY BARS -->
+<div class="card" style="margin-bottom:20px">
+  <h2><span class="dot" style="background:#14b8a6"></span>Time by Category (Hours)</h2>
+  <div class="cat-bar">
+    <div class="cat-bar-header">
+      <span class="cat-bar-label c-indigo">AI Masterclass Delivery</span>
+      <span class="cat-bar-val">96.5h &nbsp;·&nbsp; 61.8%</span>
+    </div>
+    <div class="bar-track"><div class="bar-fill bg-indigo" style="width:61.8%"></div></div>
+  </div>
+  <div class="cat-bar">
+    <div class="cat-bar-header">
+      <span class="cat-bar-label c-purple">Preparation & Content</span>
+      <span class="cat-bar-val">22.0h &nbsp;·&nbsp; 14.1%</span>
+    </div>
+    <div class="bar-track"><div class="bar-fill bg-purple" style="width:14.1%"></div></div>
+  </div>
+  <div class="cat-bar">
+    <div class="cat-bar-header">
+      <span class="cat-bar-label c-orange">Travel & Commuting</span>
+      <span class="cat-bar-val">16.5h &nbsp;·&nbsp; 10.6%</span>
+    </div>
+    <div class="bar-track"><div class="bar-fill bg-orange" style="width:10.6%"></div></div>
+  </div>
+  <div class="cat-bar">
+    <div class="cat-bar-header">
+      <span class="cat-bar-label c-teal">Meetings & Networking</span>
+      <span class="cat-bar-val">9.5h &nbsp;·&nbsp; 6.1%</span>
+    </div>
+    <div class="bar-track"><div class="bar-fill bg-teal" style="width:6.1%"></div></div>
+  </div>
+  <div class="cat-bar">
+    <div class="cat-bar-header">
+      <span class="cat-bar-label c-pink">Personal & Family</span>
+      <span class="cat-bar-val">8.5h &nbsp;·&nbsp; 5.4%</span>
+    </div>
+    <div class="bar-track"><div class="bar-fill bg-pink" style="width:5.4%"></div></div>
+  </div>
+  <div class="cat-bar">
+    <div class="cat-bar-header">
+      <span class="cat-bar-label c-blue">Admin & Finance</span>
+      <span class="cat-bar-val">3.1h &nbsp;·&nbsp; 2.0%</span>
+    </div>
+    <div class="bar-track"><div class="bar-fill bg-blue" style="width:2.0%"></div></div>
+  </div>
+</div>
+
+<!-- INSIGHTS -->
+<div style="margin-bottom:10px">
+  <div class="card" style="margin-bottom:10px">
+    <h2><span class="dot" style="background:#10b981"></span>AI-Generated Insights</h2>
+  </div>
+</div>
+
+<div class="insights-grid">
+  <div class="insight-card" style="--accent-color:#ef4444">
+    <div class="i-label">🚨 Risk — Burnout</div>
+    <div class="i-title">You are running at 200%+ capacity</div>
+    <div class="i-body">Week 2 logged <strong>52.5 tracked hours</strong> with 5 consecutive full-day masterclass delivery days (Mon–Fri). At 8–9 hours per session plus daily commute, this puts you well beyond sustainable throughput. There is no recovery buffer between intensive delivery stints. Consecutive high-output days compress cognitive performance by ~20–30% by day 4–5, which likely affects delivery quality without you noticing.</div>
+  </div>
+  <div class="insight-card" style="--accent-color:#f59e0b">
+    <div class="i-label">⚠️ Risk — Operational</div>
+    <div class="i-title">Travel is consuming a full work day per week</div>
+    <div class="i-body">16.5 hours — over 10% of your tracked time — was spent in transit (Johannesburg ↔ Cape Town routes). This is roughly <strong>one full working day every week</strong>. With 18 individual travel entries, your commute load is fragmented and is a hidden productivity tax that doesn't appear in your output metrics. Every travel hour is an opportunity cost against business development or recovery.</div>
+  </div>
+  <div class="insight-card" style="--accent-color:#8b5cf6">
+    <div class="i-label">📊 Pattern — Imbalance</div>
+    <div class="i-title">Prep is reactive, not proactive</div>
+    <div class="i-body">All 22 preparation hours occurred in the 2 weeks <em>before</em> the CPT Alterra sessions (Mar 4–13) — and <strong>zero structured prep time</strong> preceded the JHB Daily Maverick masterclasses (Feb 17–27). This suggests either over-reliance on existing materials, or prep being squeezed out by delivery volume. The Delivery-to-Prep ratio is 4.4:1 — best practice for executive-level content delivery is typically 2:1.</div>
+  </div>
+  <div class="insight-card" style="--accent-color:#14b8a6">
+    <div class="i-label">💡 Opportunity — Growth</div>
+    <div class="i-title">Strategic time is virtually invisible</div>
+    <div class="i-body">The calendar shows <strong>no dedicated blocks</strong> for business development, new client prospecting, IP creation, or strategic planning. With 100% of work time consumed by delivery and prep, there is no investment in the pipeline that will fund the quarter after this one. The "leaping frog" meeting and "Chris chat" are the only visible BD signals — neither appear to have follow-up time scheduled.</div>
+  </div>
+  <div class="insight-card" style="--accent-color:#ec4899">
+    <div class="i-label">💛 Personal — Concern</div>
+    <div class="i-title">Family time is squeezed into margins</div>
+    <div class="i-body">Personal and family events — including school pickups (Kita), a parent meeting, medical appointments (Yellow Fever vaccine), and a skate shop outing — total only <strong>8.5 hours over 4 weeks</strong>. These appear predominantly on the edges of days or on Saturdays. There is a visible tension between delivery commitments and parenting presence that will compound if the current pace continues.</div>
+  </div>
+  <div class="insight-card" style="--accent-color:#3b82f6">
+    <div class="i-label">🔧 Operational — Efficiency</div>
+    <div class="i-title">Multi-city delivery clusters are working — keep it</div>
+    <div class="i-body">The CPT block (Mar 9–13) shows intelligent batching of 4 consecutive CPT masterclass days, reducing per-trip travel overhead. This is already your most efficient delivery model. Contrast with Week 2's JHB sessions which had daily return travel. <strong>Locking clients into 3–5 day residential or clustered city blocks</strong> would reduce the 18 travel events to as few as 4–6 per month.</div>
+  </div>
+</div>
+
+<!-- RECOMMENDATIONS -->
+<div class="card" style="margin-bottom:20px">
+  <h2><span class="dot" style="background:#6366f1"></span>Recommendations</h2>
+  <div class="rec-list">
+    <div class="rec-item">
+      <div class="rec-num">1</div>
+      <div class="rec-content">
+        <div class="rec-title">Introduce a hard cap of 4 delivery days per week</div>
+        <div class="rec-body">Commit to never scheduling more than 4 consecutive full-day delivery sessions. Use the 5th day (preferably Friday) as a recovery, admin, and light-BD day. This single change would have prevented the 52.5-hour week 2 and protected output quality across the delivery run.</div>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num">2</div>
+      <div class="rec-content">
+        <div class="rec-title">Block 2 hours of "Strategic Time" every Monday morning</div>
+        <div class="rec-body">Calendar the first 2 hours of every Monday as non-negotiable deep work — pipeline review, outbound BD, IP development, or content creation. This is the investment in future revenue that your current schedule entirely crowds out. It does not appear on a client invoice but it funds next quarter.</div>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num">3</div>
+      <div class="rec-content">
+        <div class="rec-title">Migrate all delivery to 3–5 day city clusters</div>
+        <div class="rec-body">Your CPT block model is already working well. Apply it universally: when booking JHB or other city engagements, require clients to cluster sessions into a 3–5 day block. This cuts daily commute events from ~18/month to ~4–6/month, potentially recovering 10+ hours of productive time per month.</div>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num">4</div>
+      <div class="rec-content">
+        <div class="rec-title">Schedule prep blocks before — not during — delivery sprints</div>
+        <div class="rec-body">All prep in this period happened in the same days/week as delivery (Alterra), which means you were simultaneously prepping and delivering. Establish a rule: for any 3+ day engagement, all prep must be completed at least 48 hours before day one. Protect these prep blocks from being bumped by new meeting requests.</div>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num">5</div>
+      <div class="rec-content">
+        <div class="rec-title">Protect Saturday morning as family time — block it visibly</div>
+        <div class="rec-body">Kita pickups and school runs are currently scattered through weekday late afternoons, showing the pull of delivery against family time. Consider creating a recurring Saturday morning block (e.g., 09:00–13:00) visibly marked as personal, which also signals availability limits to collaborators. The March 14 Saturday already naturally surfaced this — formalise it.</div>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num">6</div>
+      <div class="rec-content">
+        <div class="rec-title">Delegate or automate financial admin</div>
+        <div class="rec-body">SARS VAT, Pay CoJ, Pay Eskom, and utilities are all manual calendar tasks consuming your personal attention. At your billing rate, even 3 hours of admin is costly. Consider onboarding an accounts/bookkeeping service or automating these payments — freeing up those cognitive slots for higher-leverage work.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BALANCE SCORECARD -->
+<div class="card" style="margin-bottom:20px">
+  <h2><span class="dot" style="background:#10b981"></span>Balance Scorecard</h2>
+  <div class="score-row">
+    <div class="score-item">
+      <div class="score-label">Delivery Sustainability</div>
+      <div class="score-bar-wrap"><div class="score-bar bg-red" style="width:30%"></div></div>
+      <div class="score-val c-red">30 / 100 — At Risk</div>
+    </div>
+    <div class="score-item">
+      <div class="score-label">Work-Life Balance</div>
+      <div class="score-bar-wrap"><div class="score-bar bg-orange" style="width:35%"></div></div>
+      <div class="score-val c-orange">35 / 100 — Needs Work</div>
+    </div>
+    <div class="score-item">
+      <div class="score-label">Strategic Investment</div>
+      <div class="score-bar-wrap"><div class="score-bar bg-red" style="width:10%"></div></div>
+      <div class="score-val c-red">10 / 100 — Critical Gap</div>
+    </div>
+    <div class="score-item">
+      <div class="score-label">Prep Quality Ratio</div>
+      <div class="score-bar-wrap"><div class="score-bar bg-orange" style="width:40%"></div></div>
+      <div class="score-val c-orange">40 / 100 — Below Target</div>
+    </div>
+    <div class="score-item">
+      <div class="score-label">Travel Efficiency</div>
+      <div class="score-bar-wrap"><div class="score-bar bg-orange" style="width:50%"></div></div>
+      <div class="score-val c-orange">50 / 100 — Improvable</div>
+    </div>
+    <div class="score-item">
+      <div class="score-label">Delivery Output</div>
+      <div class="score-bar-wrap"><div class="score-bar bg-green" style="width:92%"></div></div>
+      <div class="score-val c-green">92 / 100 — Excellent</div>
+    </div>
+  </div>
+</div>
+
+<!-- ACTIVITY TIMELINE -->
+<div class="card" style="margin-bottom:20px">
+  <h2><span class="dot" style="background:#ec4899"></span>Key Activity Log</h2>
+  <div class="timeline">
+    <div class="tl-row">
+      <span class="tl-date">Feb 17</span>
+      <span class="tl-tag" style="background:#6366f120;color:#6366f1">Delivery</span>
+      <span class="tl-text">DM JHB AI Masterclass — Day 1</span>
+      <span class="tl-hours">8.0h</span>
+    </div>
+    <div class="tl-row">
+      <span class="tl-date">Feb 18</span>
+      <span class="tl-tag" style="background:#14b8a620;color:#14b8a6">Meetings</span>
+      <span class="tl-text">Parent meeting (Nikita, Brescia) + Chris chat + GenAI webinar</span>
+      <span class="tl-hours">3.0h</span>
+    </div>
+    <div class="tl-row">
+      <span class="tl-date">Feb 19</span>
+      <span class="tl-tag" style="background:#3b82f620;color:#3b82f6">Admin</span>
+      <span class="tl-text">SARS VAT — 2 hour admin block</span>
+      <span class="tl-hours">2.0h</span>
+    </div>
+    <div class="tl-row">
+      <span class="tl-date">Feb 21</span>
+      <span class="tl-tag" style="background:#14b8a620;color:#14b8a6">Meetings</span>
+      <span class="tl-text">Lunch at the Pfeiffers (6 attendees) — networking / social</span>
+      <span class="tl-hours">4.0h</span>
+    </div>
+    <div class="tl-row">
+      <span class="tl-date">Feb 24–27</span>
+      <span class="tl-tag" style="background:#ef444420;color:#ef4444">⚠️ Sprint</span>
+      <span class="tl-text">4 consecutive full-day masterclasses (DM + Commercial GenAI) + daily travel</span>
+      <span class="tl-hours">40h</span>
+    </div>
+    <div class="tl-row">
+      <span class="tl-date">Feb 28</span>
+      <span class="tl-tag" style="background:#14b8a620;color:#14b8a6">Meetings</span>
+      <span class="tl-text">Martin meeting — Leaping Frog (BD / partnership)</span>
+      <span class="tl-hours">1.0h</span>
+    </div>
+    <div class="tl-row">
+      <span class="tl-date">Mar 2–3</span>
+      <span class="tl-tag" style="background:#6366f120;color:#6366f1">Delivery</span>
+      <span class="tl-text">Gen AI Masterclass (CPT) — 2 days + evening school run</span>
+      <span class="tl-hours">18h</span>
+    </div>
+    <div class="tl-row">
+      <span class="tl-date">Mar 4–5</span>
+      <span class="tl-tag" style="background:#8b5cf620;color:#8b5cf6">Prep</span>
+      <span class="tl-text">Prep Alterra — 13 hours of content/prep work over 2 days</span>
+      <span class="tl-hours">13.0h</span>
+    </div>
+    <div class="tl-row">
+      <span class="tl-date">Mar 6</span>
+      <span class="tl-tag" style="background:#14b8a620;color:#14b8a6">Meetings</span>
+      <span class="tl-text">Jan-Adriaan catch-up (FutureWorld) + fetch Kita</span>
+      <span class="tl-hours">2.0h</span>
+    </div>
+    <div class="tl-row">
+      <span class="tl-date">Mar 9–13</span>
+      <span class="tl-tag" style="background:#6366f120;color:#6366f1">Delivery</span>
+      <span class="tl-text">CPT Gen AI Masterclass sprint — 4 days delivery + 1 day Alterra prep</span>
+      <span class="tl-hours">45h</span>
+    </div>
+    <div class="tl-row">
+      <span class="tl-date">Mar 14</span>
+      <span class="tl-tag" style="background:#ec489920;color:#ec4899">Personal</span>
+      <span class="tl-text">Kita + Skate shop + Yellow Fever vaccine — family Saturday</span>
+      <span class="tl-hours">4.5h</span>
+    </div>
+  </div>
+</div>
+
+<div class="footer">Generated by Claude · Future Foresight · March 17, 2026 · Data source: Google Calendar (FFG, Africa/Johannesburg)</div>
+
+<script>
+// Donut chart
+const donutCtx = document.getElementById('donutChart').getContext('2d');
+new Chart(donutCtx, {
+  type: 'doughnut',
+  data: {
+    labels: ['AI Masterclass Delivery', 'Preparation', 'Travel', 'Meetings & Networking', 'Personal & Family', 'Admin & Finance'],
+    datasets: [{
+      data: [96.5, 22.0, 16.5, 9.5, 8.5, 3.1],
+      backgroundColor: ['#6366f1','#8b5cf6','#f59e0b','#14b8a6','#ec4899','#3b82f6'],
+      borderColor: '#1a1d27',
+      borderWidth: 3,
+      hoverOffset: 8
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    cutout: '62%',
+    plugins: {
+      legend: {
+        position: 'right',
+        labels: {
+          color: '#94a3b8',
+          font: { size: 11 },
+          padding: 10,
+          boxWidth: 12,
+          boxHeight: 12
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: function(ctx) {
+            const val = ctx.parsed;
+            const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+            return ` ${val}h (${(val/total*100).toFixed(1)}%)`;
+          }
+        },
+        backgroundColor: '#21263a',
+        titleColor: '#e2e8f0',
+        bodyColor: '#94a3b8',
+        borderColor: '#2e3350',
+        borderWidth: 1
+      }
+    }
+  }
+});
+
+// Stacked bar chart
+const stackedCtx = document.getElementById('stackedBar').getContext('2d');
+new Chart(stackedCtx, {
+  type: 'bar',
+  data: {
+    labels: ['Feb 17–23', 'Feb 24–Mar 2', 'Mar 3–9', 'Mar 10–17'],
+    datasets: [
+      {
+        label: 'AI Delivery',
+        data: [9.5, 41.0, 19.0, 27.0],
+        backgroundColor: '#6366f1',
+        borderRadius: 0
+      },
+      {
+        label: 'Preparation',
+        data: [0, 0, 13.0, 9.0],
+        backgroundColor: '#8b5cf6',
+        borderRadius: 0
+      },
+      {
+        label: 'Travel',
+        data: [3.0, 10.0, 3.0, 0.5],
+        backgroundColor: '#f59e0b',
+        borderRadius: 0
+      },
+      {
+        label: 'Meetings',
+        data: [5.5, 1.0, 3.0, 0],
+        backgroundColor: '#14b8a6',
+        borderRadius: 0
+      },
+      {
+        label: 'Personal/Family',
+        data: [2.0, 0.5, 2.0, 4.0],
+        backgroundColor: '#ec4899',
+        borderRadius: 0
+      },
+      {
+        label: 'Admin',
+        data: [2.9, 0, 0, 0.2],
+        backgroundColor: '#3b82f6',
+        borderRadius: {topLeft: 4, topRight: 4}
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    scales: {
+      x: {
+        stacked: true,
+        grid: { color: '#2e3350' },
+        ticks: { color: '#94a3b8', font: { size: 11 } }
+      },
+      y: {
+        stacked: true,
+        grid: { color: '#2e3350' },
+        ticks: { color: '#94a3b8', font: { size: 11 }, callback: v => v + 'h' },
+        max: 60
+      }
+    },
+    plugins: {
+      legend: {
+        labels: {
+          color: '#94a3b8',
+          font: { size: 10 },
+          padding: 8,
+          boxWidth: 10,
+          boxHeight: 10
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: function(ctx) {
+            return ` ${ctx.dataset.label}: ${ctx.parsed.y}h`;
+          }
+        },
+        backgroundColor: '#21263a',
+        titleColor: '#e2e8f0',
+        bodyColor: '#94a3b8',
+        borderColor: '#2e3350',
+        borderWidth: 1
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>

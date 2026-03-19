@@ -1,0 +1,1 @@
+You have access to my FFG calendar and FutureForesight mail. I want you to look back over the last four weeks and make me a dashboard on how my time has been spent. Add AI generated insights and guidance on how I may manage the load. Be sure to include the tripit linked calendar

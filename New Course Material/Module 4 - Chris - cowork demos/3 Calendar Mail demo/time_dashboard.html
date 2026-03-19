@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chris Barker — Time Dashboard · Feb 17 – Mar 17, 2026</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --card: #181c26;
+      --card2: #1e2332;
+      --border: #2a2f42;
+      --accent: #4f8ef7;
+      --accent2: #7c5cbf;
+      --green: #34d399;
+      --amber: #fbbf24;
+      --red: #f87171;
+      --text: #e2e8f0;
+      --muted: #8892a4;
+      --delivery: #4f8ef7;
+      --prep: #7c5cbf;
+      --travel: #f97316;
+      --family: #34d399;
+      --social: #ec4899;
+      --admin: #94a3b8;
+      --meetings: #facc15;
+      --learning: #2dd4bf;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 28px 24px 60px;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-left h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .header-left h1 span { color: var(--accent); }
+    .header-left p {
+      color: var(--muted);
+      margin-top: 4px;
+      font-size: 0.9rem;
+    }
+    .header-badges { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .badge {
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+    .badge-blue  { background: rgba(79,142,247,.15); color: #7eb8ff; border: 1px solid rgba(79,142,247,.3); }
+    .badge-green { background: rgba(52,211,153,.12); color: #34d399; border: 1px solid rgba(52,211,153,.3); }
+    .badge-amber { background: rgba(251,191,36,.12);  color: #fbbf24; border: 1px solid rgba(251,191,36,.3); }
+    .badge-red   { background: rgba(248,113,113,.12); color: #f87171; border: 1px solid rgba(248,113,113,.3); }
+    .badge-purple{ background: rgba(124,92,191,.15); color: #b08fef; border: 1px solid rgba(124,92,191,.3); }
+
+    /* ── GRID SYSTEM ── */
+    .grid { display: grid; gap: 20px; }
+    .grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-12 { grid-template-columns: 5fr 7fr; }
+    .grid-21 { grid-template-columns: 7fr 5fr; }
+    @media (max-width: 1100px) {
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .grid-12, .grid-21 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .grid-4, .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 24px;
+    }
+    .card-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    /* ── STAT CARDS ── */
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 22px;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      border-radius: 14px 14px 0 0;
+    }
+    .stat-card.blue::before  { background: var(--delivery); }
+    .stat-card.purple::before { background: var(--prep); }
+    .stat-card.orange::before { background: var(--travel); }
+    .stat-card.red::before   { background: var(--red); }
+    .stat-card .label { font-size: 0.75rem; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+    .stat-card .value { font-size: 2.1rem; font-weight: 800; margin: 6px 0 2px; letter-spacing: -1px; }
+    .stat-card .sub   { font-size: 0.8rem; color: var(--muted); }
+    .stat-card.blue   .value { color: var(--delivery); }
+    .stat-card.purple .value { color: #b08fef; }
+    .stat-card.orange .value { color: var(--travel); }
+    .stat-card.red    .value { color: var(--red); }
+
+    /* ── SECTION LABELS ── */
+    .section-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      margin: 32px 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* ── CHART CONTAINERS ── */
+    .chart-wrap { position: relative; }
+
+    /* ── CATEGORY LEGEND ── */
+    .legend { display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+    .legend-item { display: flex; align-items: center; gap: 10px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .legend-name { font-size: 0.82rem; color: var(--text); flex: 1; }
+    .legend-val  { font-size: 0.82rem; color: var(--muted); text-align: right; min-width: 60px; }
+    .legend-bar-wrap { flex: 1; height: 5px; background: rgba(255,255,255,.07); border-radius: 999px; overflow: hidden; }
+    .legend-bar { height: 100%; border-radius: 999px; }
+
+    /* ── TIMELINE ── */
+    .timeline { display: flex; flex-direction: column; gap: 0; }
+    .tl-week { margin-bottom: 18px; }
+    .tl-week-label { font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+    .tl-row { display: flex; gap: 4px; height: 32px; width: 100%; border-radius: 6px; overflow: hidden; }
+    .tl-seg {
+      height: 100%;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: rgba(255,255,255,.85);
+      overflow: hidden;
+      white-space: nowrap;
+      cursor: default;
+      transition: opacity .15s;
+    }
+    .tl-seg:hover { opacity: .85; }
+    .tl-total { font-size: 0.7rem; color: var(--muted); margin-top: 5px; text-align: right; }
+
+    /* ── INSIGHTS ── */
+    .insights-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 900px) { .insights-grid { grid-template-columns: 1fr; } }
+    .insight-card {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      display: flex;
+      gap: 14px;
+    }
+    .insight-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+    .insight-icon.red    { background: rgba(248,113,113,.15); }
+    .insight-icon.amber  { background: rgba(251,191,36,.12); }
+    .insight-icon.blue   { background: rgba(79,142,247,.12); }
+    .insight-icon.green  { background: rgba(52,211,153,.12); }
+    .insight-icon.purple { background: rgba(124,92,191,.15); }
+    .insight-body h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 5px; }
+    .insight-body p  { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+
+    /* ── RECOMMENDATIONS ── */
+    .rec-list { display: flex; flex-direction: column; gap: 12px; }
+    .rec-item {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .rec-num {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 800;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .rec-num.blue   { background: rgba(79,142,247,.2);  color: var(--delivery); }
+    .rec-num.purple { background: rgba(124,92,191,.2); color: #b08fef; }
+    .rec-num.green  { background: rgba(52,211,153,.15); color: var(--green); }
+    .rec-num.amber  { background: rgba(251,191,36,.15); color: var(--amber); }
+    .rec-num.red    { background: rgba(248,113,113,.15); color: var(--red); }
+    .rec-body h4 { font-size: 0.87rem; font-weight: 700; margin-bottom: 3px; }
+    .rec-body p  { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+    /* ── TRAVEL SECTION ── */
+    .trip-card {
+      background: var(--card2);
+      border: 1px solid rgba(249,115,22,.3);
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+    .trip-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .trip-title { font-size: 0.95rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .trip-dates { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+    .trip-details { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 8px; }
+    .trip-detail { font-size: 0.78rem; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+    .trip-detail strong { color: var(--text); }
+    .trip-flight {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(249,115,22,.08); border-radius: 8px;
+      padding: 8px 12px; margin-top: 10px;
+      font-size: 0.78rem;
+    }
+    .trip-flight-code { font-weight: 800; color: var(--travel); min-width: 55px; }
+    .trip-route { color: var(--text); flex: 1; }
+    .trip-time  { color: var(--muted); font-size: 0.74rem; }
+
+    /* ── STRESS METER ── */
+    .stress-row { display: flex; flex-direction: column; gap: 10px; }
+    .stress-week { display: flex; align-items: center; gap: 12px; }
+    .stress-name { font-size: 0.78rem; color: var(--muted); min-width: 130px; }
+    .stress-bar-track { flex: 1; height: 8px; background: rgba(255,255,255,.07); border-radius: 999px; overflow: hidden; }
+    .stress-bar { height: 100%; border-radius: 999px; }
+    .stress-val  { font-size: 0.78rem; font-weight: 700; min-width: 36px; text-align: right; }
+
+    /* ── FOOTER ── */
+    .footer {
+      margin-top: 40px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.75rem;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ HEADER ══════════════ -->
+<div class="header">
+  <div class="header-left">
+    <h1>Chris Barker — <span>Time Dashboard</span></h1>
+    <p>17 Feb 2026 – 17 Mar 2026 · FFG Calendar + TripIt · Generated 17 Mar 2026</p>
+  </div>
+  <div class="header-badges">
+    <span class="badge badge-blue">FFG Primary</span>
+    <span class="badge badge-amber">TripIt Travel</span>
+    <span class="badge badge-purple">Kita Days</span>
+    <span class="badge badge-red">⚠ High Load</span>
+  </div>
+</div>
+
+<!-- ══════════════ STAT CARDS ══════════════ -->
+<div class="section-label">At a Glance</div>
+<div class="grid grid-4">
+  <div class="stat-card blue">
+    <div class="label">Delivery Hours</div>
+    <div class="value">113h</div>
+    <div class="sub">13 full delivery days · 59% of all scheduled time</div>
+  </div>
+  <div class="stat-card purple">
+    <div class="label">Prep &amp; Content</div>
+    <div class="value">24h</div>
+    <div class="sub">3 prep days · incl. 1 Sunday · 13% of time</div>
+  </div>
+  <div class="stat-card orange">
+    <div class="label">Travel Time</div>
+    <div class="value">28.8h</div>
+    <div class="sub">Commuting + Cape Town flights · 15% of time</div>
+  </div>
+  <div class="stat-card red">
+    <div class="label">Strategic Meetings</div>
+    <div class="value">3</div>
+    <div class="sub">Only 3h in 4 weeks · business dev severely squeezed</div>
+  </div>
+</div>
+
+<!-- ══════════════ CHARTS ROW ══════════════ -->
+<div class="section-label">Time Allocation</div>
+<div class="grid grid-12">
+
+  <!-- Donut chart -->
+  <div class="card">
+    <div class="card-title">How Your Time Was Spent (190.6h total)</div>
+    <div style="display:flex; gap:32px; align-items:center; flex-wrap:wrap;">
+      <div class="chart-wrap" style="width:220px;height:220px;flex-shrink:0;">
+        <canvas id="donutChart"></canvas>
+      </div>
+      <div class="legend" style="flex:1; min-width:200px;">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--delivery)"></div>
+          <div class="legend-name">Masterclass Delivery</div>
+          <div class="legend-bar-wrap"><div class="legend-bar" style="width:59.3%;background:var(--delivery)"></div></div>
+          <div class="legend-val">113h · 59%</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--travel)"></div>
+          <div class="legend-name">Travel</div>
+          <div class="legend-bar-wrap"><div class="legend-bar" style="width:15.1%;background:var(--travel)"></div></div>
+          <div class="legend-val">28.8h · 15%</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--prep)"></div>
+          <div class="legend-name">Prep &amp; Content Dev</div>
+          <div class="legend-bar-wrap"><div class="legend-bar" style="width:12.6%;background:var(--prep)"></div></div>
+          <div class="legend-val">24h · 13%</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--family)"></div>
+          <div class="legend-name">Family &amp; School</div>
+          <div class="legend-bar-wrap"><div class="legend-bar" style="width:3.7%;background:var(--family)"></div></div>
+          <div class="legend-val">7h · 4%</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--social)"></div>
+          <div class="legend-name">Social</div>
+          <div class="legend-bar-wrap"><div class="legend-bar" style="width:3.1%;background:var(--social)"></div></div>
+          <div class="legend-val">6h · 3%</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--admin)"></div>
+          <div class="legend-name">Personal &amp; Admin</div>
+          <div class="legend-bar-wrap"><div class="legend-bar" style="width:3.0%;background:var(--admin)"></div></div>
+          <div class="legend-val">5.8h · 3%</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--meetings)"></div>
+          <div class="legend-name">External Meetings</div>
+          <div class="legend-bar-wrap"><div class="legend-bar" style="width:1.6%;background:var(--meetings)"></div></div>
+          <div class="legend-val">3h · 1.6%</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--learning)"></div>
+          <div class="legend-name">Learning / Webinars</div>
+          <div class="legend-bar-wrap"><div class="legend-bar" style="width:1.6%;background:var(--learning)"></div></div>
+          <div class="legend-val">3h · 1.6%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weekly bar chart -->
+  <div class="card">
+    <div class="card-title">Scheduled Hours by Week</div>
+    <div class="chart-wrap" style="height:220px;">
+      <canvas id="weeklyChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ WEEKLY TIMELINE ══════════════ -->
+<div class="section-label">Weekly Workload Breakdown</div>
+<div class="card">
+  <div class="card-title">Activity Composition Per Week</div>
+  <div class="timeline">
+
+    <!-- W1 -->
+    <div class="tl-week">
+      <div class="tl-week-label">Week 1 · Feb 17–22 (total: 24.2h)</div>
+      <div class="tl-row">
+        <div class="tl-seg" style="flex:8;background:var(--delivery)" title="Delivery 8h">Delivery 8h</div>
+        <div class="tl-seg" style="flex:4.8;background:var(--admin)" title="Admin 4.8h">Admin</div>
+        <div class="tl-seg" style="flex:4;background:var(--social)" title="Social 4h">Social</div>
+        <div class="tl-seg" style="flex:3;background:var(--learning)" title="Learning 3h">Learn</div>
+        <div class="tl-seg" style="flex:3;background:var(--travel)" title="Travel 3h">Travel</div>
+        <div class="tl-seg" style="flex:1.5;background:var(--meetings)" title="Meetings 1h">Mtg</div>
+      </div>
+      <div class="tl-total">65% unscheduled / lighter week — 1 delivery day</div>
+    </div>
+
+    <!-- W2 -->
+    <div class="tl-week">
+      <div class="tl-week-label">Week 2 · Feb 23–Mar 1 (total: 43h)</div>
+      <div class="tl-row">
+        <div class="tl-seg" style="flex:32;background:var(--delivery)" title="Delivery 32h">Delivery 32h (4 days)</div>
+        <div class="tl-seg" style="flex:10;background:var(--travel)" title="Travel 10h">Travel 10h</div>
+        <div class="tl-seg" style="flex:1;background:var(--meetings)" title="Meetings 1h">M</div>
+      </div>
+      <div class="tl-total">Heaviest commute week — 4 consecutive full delivery days</div>
+    </div>
+
+    <!-- W3 -->
+    <div class="tl-week">
+      <div class="tl-week-label">Week 3 · Mar 2–8 (total: 42.8h) ✈ Cape Town depart</div>
+      <div class="tl-row">
+        <div class="tl-seg" style="flex:19;background:var(--delivery)" title="Delivery 19h">Delivery 19h</div>
+        <div class="tl-seg" style="flex:11.2;background:var(--travel)" title="Travel 11.2h">Travel 11.2h</div>
+        <div class="tl-seg" style="flex:6;background:var(--prep)" title="Prep 6h">Prep 6h</div>
+        <div class="tl-seg" style="flex:3.5;background:var(--family)" title="Family 3.5h">Fam</div>
+        <div class="tl-seg" style="flex:2;background:var(--social)" title="Social 2h">Soc</div>
+        <div class="tl-seg" style="flex:1;background:var(--meetings)" title="Meetings 1h">M</div>
+      </div>
+      <div class="tl-total">Flew to Cape Town on Sunday — blended work/travel week</div>
+    </div>
+
+    <!-- W4 -->
+    <div class="tl-week">
+      <div class="tl-week-label">Week 4 · Mar 9–15 (total: 62.6h) ✈ Cape Town + Sun prep</div>
+      <div class="tl-row">
+        <div class="tl-seg" style="flex:36;background:var(--delivery)" title="Delivery 36h">Delivery 36h (4 days)</div>
+        <div class="tl-seg" style="flex:18;background:var(--prep)" title="Prep 18h">Prep 18h</div>
+        <div class="tl-seg" style="flex:4.6;background:var(--travel)" title="Travel 4.6h">Travel</div>
+        <div class="tl-seg" style="flex:3;background:var(--family)" title="Family 3h">Fam</div>
+        <div class="tl-seg" style="flex:1;background:var(--admin)" title="Admin 1h">A</div>
+      </div>
+      <div class="tl-total">⚠ PEAK LOAD: 62.6h scheduled — Sunday also a full prep day</div>
+    </div>
+
+    <!-- W5 -->
+    <div class="tl-week">
+      <div class="tl-week-label">Week 5 partial · Mar 16–17 (total: 18h)</div>
+      <div class="tl-row">
+        <div class="tl-seg" style="flex:18;background:var(--delivery)" title="Delivery 18h">Delivery 18h (2 days Alterra JHB)</div>
+      </div>
+      <div class="tl-total">Back from Cape Town, straight into Alterra Masterclass — no recovery day</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════ WORKLOAD STRESS BAR ══════════════ -->
+<div class="section-label">Weekly Load Intensity</div>
+<div class="card">
+  <div class="card-title">Scheduled Hours vs Sustainable Capacity (~40h/wk)</div>
+  <div class="stress-row" style="margin-top: 8px;">
+    <div class="stress-week">
+      <div class="stress-name">W1 Feb 17–22</div>
+      <div class="stress-bar-track">
+        <div class="stress-bar" style="width:40%;background:#34d399"></div>
+      </div>
+      <div class="stress-val" style="color:#34d399">24.2h</div>
+    </div>
+    <div class="stress-week">
+      <div class="stress-name">W2 Feb 23–Mar 1</div>
+      <div class="stress-bar-track">
+        <div class="stress-bar" style="width:72%;background:#fbbf24"></div>
+      </div>
+      <div class="stress-val" style="color:#fbbf24">43h</div>
+    </div>
+    <div class="stress-week">
+      <div class="stress-name">W3 Mar 2–8</div>
+      <div class="stress-bar-track">
+        <div class="stress-bar" style="width:71%;background:#fbbf24"></div>
+      </div>
+      <div class="stress-val" style="color:#fbbf24">42.8h</div>
+    </div>
+    <div class="stress-week">
+      <div class="stress-name">W4 Mar 9–15</div>
+      <div class="stress-bar-track">
+        <div class="stress-bar" style="width:100%;background:#f87171"></div>
+      </div>
+      <div class="stress-val" style="color:#f87171">62.6h ⚠</div>
+    </div>
+    <div class="stress-week">
+      <div class="stress-name">W5 Mar 16–17 (2d)</div>
+      <div class="stress-bar-track">
+        <div class="stress-bar" style="width:45%;background:#fbbf24"></div>
+      </div>
+      <div class="stress-val" style="color:#fbbf24">18h</div>
+    </div>
+  </div>
+  <div style="margin-top:14px; font-size:0.75rem; color:var(--muted);">
+    <span style="color:#34d399">■</span> Manageable (&lt;30h) &nbsp;
+    <span style="color:#fbbf24">■</span> High (30–55h) &nbsp;
+    <span style="color:#f87171">■</span> Overloaded (&gt;55h)
+  </div>
+</div>
+
+<!-- ══════════════ TRIPIT TRAVEL ══════════════ -->
+<div class="section-label">TripIt — Travel Activity</div>
+<div class="trip-card">
+  <div class="trip-header">
+    <div>
+      <div class="trip-title">✈ Cape Town, South Africa — Business Trip</div>
+      <div class="trip-dates">8 March 2026 → 14 March 2026 · 6 nights · Safair · First Car Rental</div>
+    </div>
+    <span class="badge badge-amber">Active Work Trip</span>
+  </div>
+  <div class="trip-details">
+    <div class="trip-detail">📍 <strong>Location</strong> Cape Town (CPT)</div>
+    <div class="trip-detail">🛫 <strong>Outbound</strong> FA305 HLA → CPT, 11:30 SAST Sun 8 Mar</div>
+    <div class="trip-detail">🛬 <strong>Return</strong> FA310 CPT → HLA, 07:20 SAST Sat 14 Mar</div>
+    <div class="trip-detail">🏢 <strong>Purpose</strong> Gen AI Masterclass CPT (4 delivery days)</div>
+    <div class="trip-detail">🚗 <strong>Ground</strong> First Car Rental picked up at CPT Airport</div>
+  </div>
+  <div class="trip-flight">
+    <div class="trip-flight-code">FA305</div>
+    <div class="trip-route">Lanseria (HLA) → Cape Town (CPT)</div>
+    <div class="trip-time">Sun 8 Mar · 11:30 → 13:45 SAST · 2h15m</div>
+  </div>
+  <div class="trip-flight">
+    <div class="trip-flight-code">FA310</div>
+    <div class="trip-route">Cape Town (CPT) → Lanseria (HLA)</div>
+    <div class="trip-time">Sat 14 Mar · 07:20 → 09:25 SAST · 2h05m</div>
+  </div>
+  <div style="margin-top:12px; padding:10px 12px; background:rgba(249,115,22,.08); border-radius:8px; font-size:0.78rem; color:var(--muted);">
+    ⚠ Note: No recovery day was built in after returning from Cape Town. Alterra JHB Masterclass began the next working day (Mon 16 Mar).
+  </div>
+</div>
+
+<!-- ══════════════ AI INSIGHTS ══════════════ -->
+<div class="section-label">AI Insights</div>
+<div class="insights-grid">
+
+  <div class="insight-card">
+    <div class="insight-icon red">🔥</div>
+    <div class="insight-body">
+      <h4>Delivery-to-Strategy Ratio is Critically Skewed</h4>
+      <p>You spent 113h delivering vs. just 3h in strategic meetings (38:1 ratio). With only 3 external meetings in 4 weeks, business development and relationship building are being crowded out entirely. This is a common pattern for in-demand practitioners — but it's a growth ceiling if left unaddressed.</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-icon amber">⚡</div>
+    <div class="insight-body">
+      <h4>Week 4 Was an Unsustainable Spike</h4>
+      <p>62.6 scheduled hours in a single week — including a Cape Town trip AND a Sunday prep day — is well above any sustainable threshold. This pattern of "deliver, travel, prep, repeat" with no buffer days compounds fatigue across weeks. The absence of a recovery day between CPT return and Alterra JHB is a red flag.</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-icon blue">✈️</div>
+    <div class="insight-body">
+      <h4>Travel Is Your Hidden 4th Job</h4>
+      <p>28.8 hours — roughly 15% of all scheduled time — was consumed by travel, including two return Safair flights, daily Jhb commutes to masterclass venues, and school/Kita logistics. This is time that feels productive but rarely is. Batching travel days and reducing daily commute events could recover 5–8h per week.</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-icon green">👨‍👧</div>
+    <div class="insight-body">
+      <h4>Family Time Is Squeezed into Gaps</h4>
+      <p>Only 7h of family/school time was explicitly calendared — Kita pickups at 17:20, a parent meeting, and a post-CPT skate shop outing. While the reality may be richer than the calendar shows, the signal is that family commitments are being threaded around work rather than protected in their own right.</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-icon purple">🗓</div>
+    <div class="insight-body">
+      <h4>You're Running a "5-Client" Sprint Without the Buffers</h4>
+      <p>Feb 17–Mar 17 saw masterclasses for at least 3 distinct clients: a JHB open cohort, a Commercial Team (exec), and Alterra — plus a Cape Town roadshow. Delivering across multiple programmes simultaneously without dedicated admin blocks between them increases error risk and reduces quality consistency.</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-icon amber">📉</div>
+    <div class="insight-body">
+      <h4>Near-Zero Investment in IP or Product Development</h4>
+      <p>Beyond preparation for specific programmes, there is no visible time allocated to creating new content, developing future IP, updating existing masterclass material, or building scalable assets. At current delivery pace, you are consuming existing IP faster than you're renewing it — a medium-term sustainability risk.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════ RECOMMENDATIONS ══════════════ -->
+<div class="section-label">Load Management Recommendations</div>
+<div class="rec-list">
+
+  <div class="rec-item">
+    <div class="rec-num blue">1</div>
+    <div class="rec-body">
+      <h4>Protect 1 "No-Delivery" Day Per Week</h4>
+      <p>Designate a fixed day each week (e.g. Thursday) as a strategy, BD, and admin day. Block it in your calendar as recurring and treat it like a client commitment. Even a single protected day per week would add ~8–9h of strategic capacity — nearly tripling your current 3h/month meeting total.</p>
+    </div>
+  </div>
+
+  <div class="rec-item">
+    <div class="rec-num purple">2</div>
+    <div class="rec-body">
+      <h4>Build a Recovery Day Into Every Travel Engagement</h4>
+      <p>The Cape Town trip ended Saturday 14 March with a 07:20 flight, and the next delivery began Monday 16 March. Future multi-day trips should include a mandatory recovery buffer — at minimum one day for admin catch-up, debrief, and re-acclimation. This pays dividends in delivery quality and personal sustainability.</p>
+    </div>
+  </div>
+
+  <div class="rec-item">
+    <div class="rec-num green">3</div>
+    <div class="rec-body">
+      <h4>Batch and Delegate Prep Work</h4>
+      <p>24h of prep time across 3 days (including a Sunday) suggests prep is happening reactively. Consider templating recurring masterclass components so prep is reduced to a 2–3h refresh, and explore whether a team member or EA could handle logistics, materials printing, and venue coordination.</p>
+    </div>
+  </div>
+
+  <div class="rec-item">
+    <div class="rec-num amber">4</div>
+    <div class="rec-body">
+      <h4>Schedule Monthly BD Meetings Proactively</h4>
+      <p>With only 3 external meetings in 4 weeks, relationship development is at risk. Set a minimum quota of 4–6 external touchpoints per month (calls, coffees, check-ins). Pre-schedule these in your calendar at the start of each month before delivery slots fill in around them.</p>
+    </div>
+  </div>
+
+  <div class="rec-item">
+    <div class="rec-num red">5</div>
+    <div class="rec-body">
+      <h4>Cap Consecutive Delivery Runs at 3 Days Max</h4>
+      <p>Weeks 2 and 4 both feature 4 consecutive full-day delivery days. Research on cognitive performance shows significant quality degradation after day 3 of intensive facilitation. Consider restructuring multi-day cohort programmes to include a mid-programme break or splitting across two weeks where client needs allow.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<div class="footer">
+  Generated by Claude · FutureForesight Group (FFG) · chris.barker@futureforesight.com<br>
+  Data sourced from FFG Google Calendar (primary), chris.barker (TripIt), and Kita Days calendars · 17 Mar 2026
+</div>
+
+<!-- ══════════════ CHARTS JS ══════════════ -->
+<script>
+  // Donut chart
+  const donutCtx = document.getElementById('donutChart').getContext('2d');
+  new Chart(donutCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Delivery','Travel','Prep','Family','Social','Admin','Meetings','Learning'],
+      datasets: [{
+        data: [113, 28.8, 24, 7, 6, 5.8, 3, 3],
+        backgroundColor: [
+          '#4f8ef7','#f97316','#7c5cbf','#34d399',
+          '#ec4899','#94a3b8','#facc15','#2dd4bf'
+        ],
+        borderColor: '#181c26',
+        borderWidth: 3,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      cutout: '68%',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.label}: ${ctx.parsed}h (${(ctx.parsed/190.6*100).toFixed(1)}%)`
+          }
+        }
+      }
+    }
+  });
+
+  // Weekly stacked bar chart
+  const weekCtx = document.getElementById('weeklyChart').getContext('2d');
+  new Chart(weekCtx, {
+    type: 'bar',
+    data: {
+      labels: ['W1 Feb17–22','W2 Feb23–Mar1','W3 Mar2–8','W4 Mar9–15','W5 Mar16–17'],
+      datasets: [
+        { label: 'Delivery', data: [8, 32, 19, 36, 18], backgroundColor: '#4f8ef7', borderRadius: 2 },
+        { label: 'Travel',   data: [3, 10, 11.2, 4.6, 0], backgroundColor: '#f97316', borderRadius: 2 },
+        { label: 'Prep',     data: [0, 0, 6, 18, 0], backgroundColor: '#7c5cbf', borderRadius: 2 },
+        { label: 'Family',   data: [0.5, 0, 3.5, 3, 0], backgroundColor: '#34d399', borderRadius: 2 },
+        { label: 'Social',   data: [4, 0, 2, 0, 0], backgroundColor: '#ec4899', borderRadius: 2 },
+        { label: 'Admin',    data: [4.8, 0, 0, 1, 0], backgroundColor: '#94a3b8', borderRadius: 2 },
+        { label: 'Meetings', data: [1, 1, 1, 0, 0], backgroundColor: '#facc15', borderRadius: 2 },
+        { label: 'Learning', data: [3, 0, 0, 0, 0], backgroundColor: '#2dd4bf', borderRadius: 2 },
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          stacked: true,
+          ticks: { color: '#8892a4', font: { size: 11 } },
+          grid: { display: false },
+          border: { color: '#2a2f42' }
+        },
+        y: {
+          stacked: true,
+          ticks: { color: '#8892a4', font: { size: 11 }, callback: v => v+'h' },
+          grid: { color: 'rgba(42,47,66,.6)' },
+          border: { color: '#2a2f42' },
+          max: 70
+        }
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom',
+          labels: { color: '#8892a4', font: { size: 10 }, boxWidth: 10, padding: 10 }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}h`
+          }
+        }
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
