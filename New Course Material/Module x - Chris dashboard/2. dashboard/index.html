@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Famous Brands Group — Performance Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ═══════════════════════ HEADER ═══════════════════════ -->
+  <header class="header">
+    <div class="header-left">
+      <div class="brand-logo">FB</div>
+      <div class="brand-title">
+        <h1>Famous Brands Group</h1>
+        <p>Quarterly Performance Dashboard &nbsp;·&nbsp; FY2023 – FY2025</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="fy-selector" role="group" aria-label="Financial year filter">
+        <button class="fy-btn active" data-fy="all">All Periods</button>
+        <button class="fy-btn" data-fy="FY2023">FY2023</button>
+        <button class="fy-btn" data-fy="FY2024">FY2024</button>
+        <button class="fy-btn" data-fy="FY2025">FY2025</button>
+      </div>
+      <button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode">
+        <span class="theme-icon">☀</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════ KPI STRIP ═══════════════════════ -->
+  <section class="kpi-strip">
+    <div class="kpi-card" id="kpi-revenue">
+      <div class="kpi-label">Group Revenue</div>
+      <div class="kpi-value" id="kv-revenue">—</div>
+      <div class="kpi-sub" id="ks-revenue">—</div>
+    </div>
+    <div class="kpi-card" id="kpi-op">
+      <div class="kpi-label">OP Margin</div>
+      <div class="kpi-value" id="kv-op">—</div>
+      <div class="kpi-sub" id="ks-op">—</div>
+    </div>
+    <div class="kpi-card" id="kpi-lfl">
+      <div class="kpi-label">LFL Growth (SA)</div>
+      <div class="kpi-value" id="kv-lfl">—</div>
+      <div class="kpi-sub" id="ks-lfl">—</div>
+    </div>
+    <div class="kpi-card" id="kpi-rest">
+      <div class="kpi-label">Total Restaurants</div>
+      <div class="kpi-value" id="kv-rest">—</div>
+      <div class="kpi-sub" id="ks-rest">—</div>
+    </div>
+    <div class="kpi-card" id="kpi-heps">
+      <div class="kpi-label">HEPS (FY)</div>
+      <div class="kpi-value" id="kv-heps">—</div>
+      <div class="kpi-sub" id="ks-heps">—</div>
+    </div>
+    <div class="kpi-card" id="kpi-nd">
+      <div class="kpi-label">Net Debt / EBITDA</div>
+      <div class="kpi-value" id="kv-nd">—</div>
+      <div class="kpi-sub" id="ks-nd">—</div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ TAB NAV ═══════════════════════ -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="summary">
+      <span class="tab-icon">📊</span> Executive Summary
+    </button>
+    <button class="tab-btn" data-tab="revenue">
+      <span class="tab-icon">💰</span> Revenue &amp; Margins
+    </button>
+    <button class="tab-btn" data-tab="brands">
+      <span class="tab-icon">🍔</span> Brands &amp; Restaurants
+    </button>
+    <button class="tab-btn" data-tab="digital">
+      <span class="tab-icon">📱</span> Digital &amp; ESG
+    </button>
+    <button class="tab-btn" data-tab="balance">
+      <span class="tab-icon">🏦</span> Balance Sheet
+    </button>
+  </nav>
+
+  <!-- ═══════════════════════ TAB CONTENT ═══════════════════════ -->
+  <main class="tab-contents">
+
+    <!-- ───── TAB 1: EXECUTIVE SUMMARY ───── -->
+    <section id="summary" class="tab-pane active">
+      <div class="grid grid-2-1">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2>Quarterly Revenue &amp; Operating Profit Margin</h2>
+            <span class="chart-badge">Combo</span>
+          </div>
+          <div class="chart-wrap tall">
+            <canvas id="revOPChart"></canvas>
+          </div>
+        </div>
+        <div class="ai-panel">
+          <div class="ai-header">
+            <div class="ai-title">
+              <span class="ai-spark">✦</span>
+              <span>AI Analysis</span>
+            </div>
+            <button class="generate-btn" data-insight="summary">
+              <span class="btn-icon">▶</span> Generate
+            </button>
+          </div>
+          <div class="ai-body" id="ai-summary">
+            <div class="ai-placeholder">
+              <div class="ai-placeholder-icon">✦</div>
+              <p>Click <strong>Generate</strong> to produce AI-powered narrative commentary on the current period's performance — including trend identification, margin drivers, and strategic signals.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-3">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2>OP Margin Trend</h2>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="opTrendChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2>LFL Sales Growth — Leading Brands SA</h2>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="lflSummaryChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2>Revenue by Region (Latest FY)</h2>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="regionDonutChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───── TAB 2: REVENUE & MARGINS ───── -->
+    <section id="revenue" class="tab-pane">
+      <div class="grid grid-1">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2>Revenue by Region — All Quarters</h2>
+            <span class="chart-badge">Stacked</span>
+          </div>
+          <div class="chart-wrap tall">
+            <canvas id="regionalStackChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2>Operating Margin by Region</h2>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="regionalMarginsChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2>SA Division Profitability — Margin Heatmap</h2>
+            <span class="chart-badge">Heatmap</span>
+          </div>
+          <div class="heatmap-wrap" id="divisionHeatmap">
+            <!-- generated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-bar">
+        <div class="ai-bar-left">
+          <span class="ai-spark">✦</span>
+          <span class="ai-bar-title">AI Analysis — Revenue &amp; Margins</span>
+        </div>
+        <div class="ai-bar-body" id="ai-revenue">
+          <span class="ai-placeholder-inline">Click Generate for AI commentary on revenue mix, regional dynamics, and margin drivers.</span>
+        </div>
+        <button class="generate-btn" data-insight="revenue">
+          <span class="btn-icon">▶</span> Generate
+        </button>
+      </div>
+    </section>
+
+    <!-- ───── TAB 3: BRANDS & RESTAURANTS ───── -->
+    <section id="brands" class="tab-pane">
+      <div class="grid grid-1">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2>SA Restaurant Count by Brand</h2>
+            <span class="chart-badge">6 Brands</span>
+          </div>
+          <div class="chart-wrap tall">
+            <canvas id="brandCountChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2>Like-for-Like Sales Growth</h2>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="lflDetailChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2>Net Restaurant Activity per Quarter</h2>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="netOpensChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-bar">
+        <div class="ai-bar-left">
+          <span class="ai-spark">✦</span>
+          <span class="ai-bar-title">AI Analysis — Brands &amp; Restaurants</span>
+        </div>
+        <div class="ai-bar-body" id="ai-brands">
+          <span class="ai-placeholder-inline">Click Generate for AI commentary on brand performance, growth leaders, and LFL trends.</span>
+        </div>
+        <button class="generate-btn" data-insight="brands">
+          <span class="btn-icon">▶</span> Generate
+        </button>
+      </div>
+    </section>
+
+    <!-- ───── TAB 4: DIGITAL & ESG ───── -->
+    <section id="digital" class="tab-pane">
+      <div class="grid grid-2">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2>Loyalty Programme Members</h2>
+            <span class="chart-badge">Consumer</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="loyaltyChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2>Digital Infrastructure Roll-out</h2>
+            <span class="chart-badge">Operations</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="digitalOpsChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2>GHG Emissions vs Solar Generation</h2>
+            <span class="chart-badge">ESG</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="esgChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2>ESG Scorecard</h2>
+          </div>
+          <div class="esg-scorecard" id="esgScorecard">
+            <!-- generated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-bar">
+        <div class="ai-bar-left">
+          <span class="ai-spark">✦</span>
+          <span class="ai-bar-title">AI Analysis — Digital &amp; ESG</span>
+        </div>
+        <div class="ai-bar-body" id="ai-digital">
+          <span class="ai-placeholder-inline">Click Generate for AI commentary on digital transformation progress and ESG performance.</span>
+        </div>
+        <button class="generate-btn" data-insight="digital">
+          <span class="btn-icon">▶</span> Generate
+        </button>
+      </div>
+    </section>
+
+    <!-- ───── TAB 5: BALANCE SHEET ───── -->
+    <section id="balance" class="tab-pane">
+      <div class="grid grid-1">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2>Net Debt &amp; Leverage Ratio</h2>
+            <span class="chart-badge">Dual Axis</span>
+          </div>
+          <div class="chart-wrap tall">
+            <canvas id="debtChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2>Return on Capital Employed (ROCE)</h2>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="roceChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2>Logistics Case Volumes</h2>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="casesChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-bar">
+        <div class="ai-bar-left">
+          <span class="ai-spark">✦</span>
+          <span class="ai-bar-title">AI Analysis — Balance Sheet &amp; Capital</span>
+        </div>
+        <div class="ai-bar-body" id="ai-balance">
+          <span class="ai-placeholder-inline">Click Generate for AI commentary on deleveraging progress, capital allocation, and balance sheet health.</span>
+        </div>
+        <button class="generate-btn" data-insight="balance">
+          <span class="btn-icon">▶</span> Generate
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+  <footer class="footer">
+    <span>Data: Famous Brands Integrated Annual Report 2025 · Quarterly estimates anchored to published annual actuals · For demonstration purposes</span>
+    <span id="footer-filter">Showing: All Periods</span>
+  </footer>
+
+  <!-- Scripts loaded in dependency order -->
+  <script src="js/data.js"></script>
+  <script src="js/insights.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

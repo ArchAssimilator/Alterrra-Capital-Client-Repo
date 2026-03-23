@@ -22,135 +22,8 @@
               "icon": "file-text",
               "title": "Changelog"
             }
-          },
-          {
-            "id": "f64111887be57ad2",
-            "type": "leaf",
-            "pinned": true,
-            "state": {
-              "type": "terminal:terminal",
-              "state": {
-                "terminal:terminal": {
-                  "cwd": "/Users/chrisbarker/Repos/Alterrra-Capital-Client-Repo-main",
-                  "focus": false,
-                  "profile": {
-                    "args": [
-                      "--login"
-                    ],
-                    "executable": "/bin/zsh",
-                    "followTheme": true,
-                    "name": "",
-                    "platforms": {
-                      "darwin": true
-                    },
-                    "pythonExecutable": "python3",
-                    "restoreHistory": false,
-                    "rightClickAction": "copyPaste",
-                    "successExitCodes": [
-                      "0",
-                      "SIGINT",
-                      "SIGTERM"
-                    ],
-                    "terminalOptions": {
-                      "documentOverride": null
-                    },
-                    "type": "integrated",
-                    "useWin32Conhost": true
-                  },
-                  "serial": null
-                }
-              },
-              "pinned": true,
-              "icon": "terminal",
-              "title": "Terminal: ⠐ Claude Code"
-            }
-          },
-          {
-            "id": "55df5285900dce62",
-            "type": "leaf",
-            "pinned": true,
-            "state": {
-              "type": "terminal:terminal",
-              "state": {
-                "terminal:terminal": {
-                  "cwd": "/Users/chrisbarker/Repos/Alterrra-Capital-Client-Repo-main",
-                  "focus": false,
-                  "profile": {
-                    "args": [
-                      "--login"
-                    ],
-                    "executable": "/bin/zsh",
-                    "followTheme": true,
-                    "name": "",
-                    "platforms": {
-                      "darwin": true
-                    },
-                    "pythonExecutable": "python3",
-                    "restoreHistory": false,
-                    "rightClickAction": "copyPaste",
-                    "successExitCodes": [
-                      "0",
-                      "SIGINT",
-                      "SIGTERM"
-                    ],
-                    "terminalOptions": {
-                      "documentOverride": null
-                    },
-                    "type": "integrated",
-                    "useWin32Conhost": true
-                  },
-                  "serial": null
-                }
-              },
-              "pinned": true,
-              "icon": "terminal",
-              "title": "Terminal: ◇  Ready (Alterrra-Capital-Client-Repo-main)"
-            }
-          },
-          {
-            "id": "8e46146d2ebb7624",
-            "type": "leaf",
-            "pinned": true,
-            "state": {
-              "type": "terminal:terminal",
-              "state": {
-                "terminal:terminal": {
-                  "cwd": "/Users/chrisbarker/Repos/Alterrra-Capital-Client-Repo-main",
-                  "focus": false,
-                  "profile": {
-                    "args": [
-                      "--login"
-                    ],
-                    "executable": "/bin/zsh",
-                    "followTheme": true,
-                    "name": "",
-                    "platforms": {
-                      "darwin": true
-                    },
-                    "pythonExecutable": "python3",
-                    "restoreHistory": false,
-                    "rightClickAction": "copyPaste",
-                    "successExitCodes": [
-                      "0",
-                      "SIGINT",
-                      "SIGTERM"
-                    ],
-                    "terminalOptions": {
-                      "documentOverride": null
-                    },
-                    "type": "integrated",
-                    "useWin32Conhost": true
-                  },
-                  "serial": null
-                }
-              },
-              "pinned": true,
-              "icon": "terminal",
-              "title": "Terminal: zsh"
-            }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -203,7 +76,8 @@
               "title": "Bookmarks"
             }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "horizontal",
@@ -223,7 +97,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "New Course Material/Module 2 - Chris - opportunity screening/1b. Prompt_Oppportunity_Triage.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -233,7 +106,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for 1b. Prompt_Oppportunity_Triage"
+              "title": "Backlinks"
             }
           },
           {
@@ -242,12 +115,11 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "New Course Material/Module 2 - Chris - opportunity screening/1b. Prompt_Oppportunity_Triage.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from 1b. Prompt_Oppportunity_Triage"
+              "title": "Outgoing links"
             }
           },
           {
@@ -313,13 +185,14 @@
       "terminal:Open terminal": false
     }
   },
-  "active": "f64111887be57ad2",
+  "active": "1a05c921a417222b",
   "lastOpenFiles": [
+    "CLAUDE.md",
+    "Untitled.canvas",
+    "New Course Material/Module 4 - Chris - cowork demos/1 PDF conversion/Cold Email To Funder Templates.md",
     "New Course Material/Module 4 - Chris - cowork demos/1 PDF conversion/CyberChecklist1.md",
     "New Course Material/Module 4 - Chris - cowork demos/1 PDF conversion/Cold Email To Funder Templates.pdf",
-    "New Course Material/Module 4 - Chris - cowork demos/1 PDF conversion/Cold Email To Funder Templates.md",
     "New Course Material/Module 4 - Chris - cowork demos/1 PDF conversion/1. Prompt.md",
-    "Untitled.canvas",
     "New Course Material/Module 2 - Chris - opportunity screening/1b. Prompt_Oppportunity_Triage.md",
     "New Course Material/Module 2 - Chris - opportunity screening/1a. 2025 Famous Brands Integrated Report Interactive.pdf",
     "New Course Material/Module 2 - Chris - opportunity screening/1 RTCIO exercise.md"
