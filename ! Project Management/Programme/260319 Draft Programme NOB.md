@@ -7,21 +7,25 @@
 1. Basics (interface, models, security best practices)
 2. Technical aspects of foundation models
 3. Prompt Engineering (RCTIO prompting)
-4. Context Engineering (in-prompt & next-prompt chaining)
 
-**Exercise**
+**Group Exercise**
+
+- RCTIO prompt creation - how to implement GenAi in the organisation
+
+**Individual Exercise**
 
 - RCTIO prompt creation - new 3rd party logistics provider for restaurant business
 
-### Module 2 - DOCUMENT CREATION, MANIPULATION & REVIEW
+4. Context Engineering (in-prompt & next-prompt chaining)
 
-1. PE Opportunity evaluation demo - Possible acquisition of Famous Brands
+### Module 2 - DOCUMENT CREATION, MANIPULATION & REVIEW
 
 **Exercise**
 
 - Spreadsheet recreation attempt - Famous Brands FY 2025
 
-2. Spreadsheet recreation extensive demo - Famous Brands Financial Statements FY 2021 - 2025
+1. Spreadsheet recreation extensive demo - Famous Brands Financial Statements FY 2021 - 2025
+2. PE Opportunity evaluation demo - Possible acquisition of Famous Brands
 3. Presentation creation demo - Famous Brands first pass evaluation (Gamma.app and PowerPoint)
 
 ### Interlude
