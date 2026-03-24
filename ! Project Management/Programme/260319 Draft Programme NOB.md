@@ -4,10 +4,10 @@
 
 ### Module 1 - FUNDAMENTALS, PROMPT & CONTEXT ENGINEERING
 
-- Basics (interface, models, security best practices)
-- Technical aspects of foundation models
-- Prompt Engineering (RCTIO prompting)
-- Context Engineering (in-prompt & next-prompt chaining)
+1. Basics (interface, models, security best practices)
+2. Technical aspects of foundation models
+3. Prompt Engineering (RCTIO prompting)
+4. Context Engineering (in-prompt & next-prompt chaining)
 
 **Exercise**
 
@@ -16,8 +16,13 @@
 ### Module 2 - DOCUMENT CREATION, MANIPULATION & REVIEW
 
 1. PE Opportunity evaluation demo - Possible acquisition of Famous Brands
+
+**Exercise**
+
+- Spreadsheet recreation attempt - Famous Brands FY 2025
+
 2. Spreadsheet recreation extensive demo - Famous Brands Financial Statements FY 2021 - 2025
-3. Presentation creation demo - Gamma.app and PowerPoint 
+3. Presentation creation demo - Famous Brands first pass evaluation (Gamma.app and PowerPoint)
 
 ### Interlude
 
@@ -27,32 +32,41 @@
 
 ### Module 3 - (DEEP) RESEARCH & (ADVANCED) DATA ANALYSIS
 
-- Deep Research: best practices for ChatGPT, Gemini and Claude 
-- Deep Research: ChatGPT demo (answers to questionnaire for spreadsheet recreation)
-- Daily Intelligence Brief: Famous Brands industry daily intelligence feed (via Grok)
+1. Deep Research: best practices for ChatGPT, Gemini and Claude 
+2. Deep Research: ChatGPT demo (answers to questionnaire for spreadsheet recreation)
+3. Daily Intelligence Brief: Famous Brands industry daily intelligence feed (via Grok)
 
 **Exercise**
 
 - Deep Research: comprehensive structural industry analysis (ChatGPT & Gemini)
 - Evaluation of ChatGPT & Gemini Deep Research reports in Claude
 
-### Interlude
-
-- Tabulated learning - on restaurant business
-
 ## Module 4 - AGENTS & WORKFLOWS
 
-- Custom GPTs & Gems - contracts
-  
-- Claude Cowork - Demo 
+1. Custom GPTs & GEMs explanation and demo - labour law advisor
 
-- Skills creation - Deep Research Prompt creation per model
+**Exercise**
+
+- Create Custom GPT and/or GEM for contract creation and evaluation
+
+2. Claude Cowork demo - participants research & reporting 
+3. Skills creation demo - Deep Research Prompt creation
 
 ### Interlude (time permitting)
 
-- Vibe coding exercise (CB)
+- Vibe coding demo & exercise
 
 ### Module 5 - PERSONAL PLAN
 
 - 90-day work plan
 
+### Vignettes
+
+Several demos are at hand:
+
+- Image & video creation
+- Advanced data analysis
+- Online presence (OSINT) evaluation
+- Agentic browsing
+- Agentic shopping
+- 'Bypassing paywalls': newsletter re-creation
