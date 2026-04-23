@@ -1,94 +1,60 @@
 ---
-title: "Obsidian Quick-Start Guide — Markdown Basics and Copy-Paste Workflows"
-type: "Quick Reference / How-To Guide"
-topic: "Obsidian, Markdown, Note-Taking, Productivity, AI Workflows"
+title: "Obsidian & Markdown Notes"
+source_file: "Obsidian.pdf"
+document_type: notes
+authors:
+  - "Chris Barker"
 pages: 2
-summary: "A concise quick-start guide covering what Markdown is, how to open and navigate Obsidian, how to create files and folders, and practical copy-paste workflows between Obsidian, AI tools (ChatGPT/Claude), Word/PowerPoint, and other apps. Includes a recommended settings tip to reduce confusion."
-converted_from: "Obsidian.pdf"
+tags:
+  - obsidian
+  - markdown
+key_sections:
+  []
+date_converted: 2026-03-26
 ---
 
-# Obsidian Quick-Start Guide
+# Obsidian & Markdown Notes
 
-*Markdown basics, navigation, and copy-paste workflows*
+## Summary
 
----
-
-## What is Markdown?
-
-Markdown is a simple text format that uses basic characters to structure content. Key points:
-
-- It's just plain text with special characters: `##` for headings, `-` or `1.` for bullets
-- Files are named with a `.md` extension instead of `.txt`
-- Does **not** support coloured text
-- AI apps understand Markdown headings and bullets — it truly helps with complex prompts
-- `.md` files are very small and very easy to add to an AI chat, with no conversion or time losses
-- Can be viewed by any app (it's plain text), but **Obsidian** is recommended for its copy/paste benefits
+• What is markdown o It's just text with ## for headings, and - or 1. for bullets, that is easier to read in markdown viewers: o Named file.md instead of file.txt o Does not support coloured text o AI apps understand markdown headings and bullets. It truly helps with complex prompts o But mostly md files are very small, and very easy to add to an AI chat, with no conversion or time losses o Can be viewed by any app (it's text) but we like Obsidian for the copy/paste benefits • First job is to open a FOLDER and view files - as you are used to o This is the only confusing part: Bottom left "Obsidian vault", "Manage Vaults", 2nd option is "Open folder as vault". o Find or create a folder on your desktop or somewhere easy • Create a new file or sub-folder o Icons top left are for new file (.md), and new folder o New file name on left will be same in several places, no matter where you change it o In the right you can now type with #, ##, ### for headings, - for bullets, 1.
 
 ---
 
-## Getting Started: Open a Folder in Obsidian
+## Full Content
 
-The first job in Obsidian is to open a **folder** and view files — as you would in any file manager.
+• What is markdown
+o It's just text with ## for headings, and - or 1. for bullets, that is easier to read in
+markdown viewers:
+o Named file.md instead of file.txt
+o Does not support coloured text
+o AI apps understand markdown headings and bullets. It truly helps with complex
+prompts
+o But mostly md files are very small, and very easy to add to an AI chat, with no
+conversion or time losses
+o Can be viewed by any app (it's text) but we like Obsidian for the copy/paste benefits
+• First job is to open a FOLDER and view files - as you are used to
+o This is the only confusing part: Bottom left "Obsidian vault", "Manage Vaults", 2nd
+option is "Open folder as vault".
+o Find or create a folder on your desktop or somewhere easy
+• Create a new file or sub-folder
+o Icons top left are for new file (.md), and new folder
+o New file name on left will be same in several places, no matter where you change it
+o In the right you can now type with #, ##, ### for headings, - for bullets, 1. for
+numbered lists
+• A basic setting to limit confusion
+o Settings, Appearance, turn off "Show inline title"
 
-> This is the only confusing part:
-> 1. Click **"Open Obsidian vault"** in the bottom left
-> 2. Select **"Manage Vaults"**
-> 3. Choose the second option: **"Open folder as vault"**
-> 4. Find or create a folder on your desktop or somewhere easy
-
----
-
-## Create a New File or Sub-folder
-
-- Icons in the **top left** are for new file (`.md`) and new folder
-- The new file name shown on the left will be the same in several places — no matter where you change it, it updates everywhere
-- In the right-hand editor, you can now type using:
-  - `#`, `##`, `###` for headings
-  - `-` for bullet points
-  - `1.` for numbered lists
-
----
-
-## Recommended Setting to Reduce Confusion
-
-Go to **Settings → Appearance** and turn off **"Show inline title"**
-
----
-
-## Copy-Paste Workflows
-
-Obsidian is particularly useful for storing and transferring content between apps in universal `.md` format.
-
-> Use **Ctrl+C** to copy and **Ctrl+V** to paste on Windows; **Command+C / Command+V** on Mac.
-
-### Obsidian → ChatGPT / Claude (as Markdown)
-
-1. Select text in Obsidian
-2. Copy (Ctrl+C)
-3. Switch to ChatGPT or Claude
-4. Paste (Ctrl+V)
-
-### ChatGPT / Claude Output → Obsidian (as Markdown)
-
-1. Click the **copy button** in ChatGPT or Claude (preserves Markdown formatting)
-2. Switch to Obsidian
-3. Paste (Ctrl+V)
-
-### Word / PowerPoint → Obsidian (as Markdown)
-
-1. Select text in Word or PowerPoint
-2. Copy (Ctrl+C)
-3. Switch to Obsidian
-4. Paste (Ctrl+V)
-
-> **Note:** Headings from Word will be converted to **bold text** rather than Markdown `#` headings. You may need to manually convert these.
-
-### Obsidian → Word / PowerPoint (formatted output)
-
-1. Switch to **Reading View** in Obsidian (click the pen icon in the top right to toggle between Edit and Reading view)
-2. Select text with the mouse in Reading View
-3. Copy (Ctrl+C)
-4. Switch to Word or PowerPoint
-5. Paste (Ctrl+V) — the formatted (rendered) content will paste cleanly
-
-> **Important:** You must be in Reading View for this to work. If you copy from Edit View, the raw Markdown syntax (e.g., `##`, `-`) will be pasted instead of the formatted output.
+• Mostly it's good for copy paste storing of chat results in universal md format
+o Please use Ctrl-C for copy, Ctrl-V for paste (Command-C on Mac)
+o Obsidian → chatGPT/Claude as md
+§ Obsidian mark, copy, switch to chatGPT, paste
+o chatGPT/Claude pretty output → obsidian as md
+§ chatGPT use copy button, switch to Obsidian, paste
+o Word/ppt pretty → Obsidian as md
+§ Word mark, copy, switch to Obsidian, paste
+§ Will lose # headings and make into bold text instead
+o Obsidian pretty → Word/ppt pretty
+§ Must be in Obsidian reading view (top right icon is a pen) else it will not copy
+pretty view
+§ Must mark with mouse, copy, switch to Word, paste
