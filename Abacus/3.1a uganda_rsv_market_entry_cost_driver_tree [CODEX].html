@@ -1,0 +1,4148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Uganda RSV Market Entry P&amp;L Driver Tree [CODEX]</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#0f0f0f; --panel:#171717; --panel2:#1f1f1f; --line:#313131; --text:#eaeaea; --muted:#aaaaaa; --profit:#c8f542; --revenue:#42d4f5; --variable:#f5a742; --fixed:#f54242; --warning:#f5c542; }
+    * { box-sizing:border-box; } html,body { margin:0; padding:0; background:var(--bg); color:var(--text); font-family:"IBM Plex Mono", monospace; }
+    body { padding:24px; } .wrap { max-width:1680px; margin:0 auto; } .hero,.legend,.tree { background:var(--panel); border:1px solid var(--line); border-radius:16px; }
+    .hero { padding:20px; margin-bottom:18px; } .legend { padding:14px 16px; margin-bottom:18px; display:flex; gap:12px; flex-wrap:wrap; color:var(--muted); font-size:12px; }
+    .tree { padding:12px 10px; max-height:calc(100vh - 80px); overflow:auto; } .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-top:18px; }
+    .card { background:var(--panel2); border:1px solid var(--line); border-radius:14px; padding:14px 16px; } .card h3 { margin:0 0 10px; font-size:13px; text-transform:uppercase; color:var(--muted); }
+    .card ul { margin:0; padding-left:18px; line-height:1.65; font-size:13px; } .row { display:flex; gap:10px; padding:4px 8px; border-radius:10px; white-space:nowrap; font-size:13px; line-height:1.55; }
+    .row:hover { background:rgba(255,255,255,.03); } .bar { width:4px; border-radius:999px; align-self:stretch; min-height:22px; } .connector { color:#6d6d6d; } .op { color:#bdbdbd; width:16px; text-align:center; }
+    .toggle { color:#8d8d8d; width:14px; text-align:center; cursor:pointer; user-select:none; } .toggle.empty { visibility:hidden; } .label { font-weight:500; } .tags { display:inline-flex; gap:6px; flex-wrap:wrap; margin-left:4px; }
+    .tag { padding:1px 6px; border:1px solid var(--line); border-radius:999px; font-size:11px; color:var(--muted); background:var(--panel2); } .tag.warn { color:#181818; background:var(--warning); border-color:var(--warning); font-weight:600; }
+    .detail,.note { color:var(--muted); margin-left:8px; } .ref .label { font-style:italic; opacity:.78; } .meta { display:flex; gap:18px; flex-wrap:wrap; color:var(--muted); font-size:12px; margin-top:12px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <h1>Interactive P&L Driver Tree: Uganda Maternal RSV Market Entry [CODEX]</h1>
+    <p style="color:#aaaaaa;font-size:13px;line-height:1.6;">Stateful market-entry spec with prior-month rollout logic, four-region structure, and leaner fixed-cost assumptions for a more aggressive Uganda launch build.</p>
+    <div class="meta">
+      <div>Nodes: 290</div>
+      <div>Depth: 7</div>
+      <div>Input nodes: 116</div>
+      <div>Stateful monthly logic enabled</div>
+    </div>
+    <div class="grid">
+      <div class="card"><h3>Revenue Streams</h3><ul><li>Public / donor maternal RSV vaccine revenue across Central, Western, Eastern, and Northern</li><li>Private maternal RSV vaccine revenue across the same four regions</li></ul></div>
+      <div class="card"><h3>Stateful Nodes</h3><ul><li><code>central_public_active_coverage_state</code></li><li><code>western_public_active_coverage_state</code></li><li><code>eastern_public_active_coverage_state</code></li><li><code>northern_public_active_coverage_state</code></li><li><code>central_private_active_coverage_state</code></li><li><code>western_private_active_coverage_state</code></li><li><code>eastern_private_active_coverage_state</code></li><li><code>northern_private_active_coverage_state</code></li></ul></div>
+      <div class="card"><h3>Shared Nodes</h3><ul><li><code>national_live_births_per_month</code></li><li><code>central_reachable_pregnancies</code></li><li><code>western_reachable_pregnancies</code></li><li><code>eastern_reachable_pregnancies</code></li><li><code>northern_reachable_pregnancies</code></li></ul></div>
+      <div class="card"><h3>Other Assumptions</h3><ul><li>Launch state is modeled via active coverage roll-forward rather than a flat same-month ramp factor.</li><li>Fixed costs are intentionally leaner than the prior version, assuming shared support, lighter field teams, and tighter regional sequencing.</li></ul></div>
+    </div>
+  </section>
+  <section class="legend">
+    <span>[INPUT]</span><span>[REF]</span><span>[DRIVER]</span><span>[?]</span><span>[STATEFUL]</span><span>× − ÷ +</span>
+  </section>
+  <section class="tree"><div id="tree"></div></section>
+</div>
+<script>
+const data = {
+  "id": "net_profit",
+  "label": "Net Profit",
+  "category": "profit",
+  "type": "calculated",
+  "op": null,
+  "driver": false,
+  "refOf": null,
+  "formula": "= revenue − total costs",
+  "children": [
+    {
+      "id": "revenue",
+      "label": "Revenue",
+      "category": "revenue",
+      "type": "calculated",
+      "op": null,
+      "driver": false,
+      "refOf": null,
+      "formula": "= public / donor revenue + private revenue",
+      "children": [
+        {
+          "id": "public_revenue",
+          "label": "Public / Donor Revenue",
+          "category": "revenue",
+          "type": "calculated",
+          "op": null,
+          "driver": false,
+          "refOf": null,
+          "formula": "= sum of regional public revenue",
+          "children": [
+            {
+              "id": "central_public_revenue",
+              "label": "Central Public Revenue",
+              "category": "revenue",
+              "type": "calculated",
+              "op": null,
+              "driver": false,
+              "refOf": null,
+              "formula": "= administered doses × net realised price per dose",
+              "children": [
+                {
+                  "id": "central_public_administered_doses",
+                  "label": "Central Public Administered Doses",
+                  "category": "revenue",
+                  "type": "calculated",
+                  "op": null,
+                  "driver": true,
+                  "refOf": null,
+                  "formula": "= reachable pregnancies × eligibility × provider recommendation × acceptance × stock availability × active coverage state",
+                  "children": [
+                    {
+                      "id": "central_reachable_pregnancies",
+                      "label": "Central Reachable Pregnancies",
+                      "category": "revenue",
+                      "type": "calculated",
+                      "op": null,
+                      "driver": true,
+                      "refOf": null,
+                      "formula": "= national live births per month × regional opportunity weight × ANC access × third trimester window",
+                      "children": [
+                        {
+                          "id": "national_live_births_per_month",
+                          "label": "National Live Births Per Month",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": null,
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 145833,
+                          "annualGrowth": 0.018,
+                          "unit": "births/month",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "Directionally consistent with roughly 1.75 million births per year"
+                        },
+                        {
+                          "id": "central_regional_opportunity_weight",
+                          "label": "Central Regional Opportunity Weight",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": "×",
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.28,
+                          "annualGrowth": 0,
+                          "unit": "% of national opportunity",
+                          "uncertain": false,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null
+                        },
+                        {
+                          "id": "central_anc_access_rate",
+                          "label": "Central ANC Access Rate",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": "×",
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.72,
+                          "annualGrowth": 0.003,
+                          "unit": "%",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "ANC channel reach"
+                        },
+                        {
+                          "id": "central_third_trimester_window_rate",
+                          "label": "Central Third Trimester Window Rate",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": "×",
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.62,
+                          "annualGrowth": 0.006,
+                          "unit": "%",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "Share reached in relevant gestational window"
+                        }
+                      ],
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null,
+                      "note": "Shared regional pregnancy pool"
+                    },
+                    {
+                      "id": "central_public_eligibility_rate",
+                      "label": "Central Public Eligibility Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.28,
+                      "annualGrowth": 0.08,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null,
+                      "note": "Funded or affordable share of reachable pregnancies"
+                    },
+                    {
+                      "id": "central_public_provider_recommendation_rate",
+                      "label": "Central Public Provider Recommendation Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.56,
+                      "annualGrowth": 0.04,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "central_public_acceptance_rate",
+                      "label": "Central Public Acceptance Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.78,
+                      "annualGrowth": 0.02,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "central_public_stock_availability_rate",
+                      "label": "Central Public Stock Availability Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.9,
+                      "annualGrowth": 0.015,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "central_public_active_coverage_state",
+                      "label": "Central Public Active Coverage State",
+                      "category": "revenue",
+                      "type": "calculated",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "formula": "= prior month + additions - churn",
+                      "children": [
+                        {
+                          "id": "central_public_coverage_additions",
+                          "label": "Central Public Coverage Additions",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": null,
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.025,
+                          "annualGrowth": 0.03,
+                          "unit": "% pts/month",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "Monthly rollout gain from onboarding, awareness, and funded expansion"
+                        },
+                        {
+                          "id": "central_public_coverage_churn",
+                          "label": "Central Public Coverage Churn",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": "+",
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.004,
+                          "annualGrowth": 0.0,
+                          "unit": "% pts/month",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "Loss of active coverage due to drop-off, stock issues, and execution leakage"
+                        }
+                      ],
+                      "timeBehavior": "stateful_roll_forward",
+                      "rollForward": {
+                        "month1Mode": "input",
+                        "month1Value": 0.08,
+                        "monthlyFormula": "= prior_month + additions - churn",
+                        "components": {
+                          "priorMonth": "prior_month",
+                          "additions": "central_public_coverage_additions",
+                          "churn": "central_public_coverage_churn"
+                        }
+                      },
+                      "note": "Stateful monthly coverage ramp used instead of a flat launch factor"
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "central_public_net_price_per_dose",
+                  "label": "Central Public Net Realised Price Per Dose",
+                  "category": "revenue",
+                  "type": "input",
+                  "op": "×",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 35500,
+                  "annualGrowth": 0.03,
+                  "unit": "UGX/dose",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            },
+            {
+              "id": "western_public_revenue",
+              "label": "Western Public Revenue",
+              "category": "revenue",
+              "type": "calculated",
+              "op": "+",
+              "driver": false,
+              "refOf": null,
+              "formula": "= administered doses × net realised price per dose",
+              "children": [
+                {
+                  "id": "western_public_administered_doses",
+                  "label": "Western Public Administered Doses",
+                  "category": "revenue",
+                  "type": "calculated",
+                  "op": null,
+                  "driver": true,
+                  "refOf": null,
+                  "formula": "= reachable pregnancies × eligibility × provider recommendation × acceptance × stock availability × active coverage state",
+                  "children": [
+                    {
+                      "id": "western_reachable_pregnancies",
+                      "label": "Western Reachable Pregnancies",
+                      "category": "revenue",
+                      "type": "calculated",
+                      "op": null,
+                      "driver": true,
+                      "refOf": null,
+                      "formula": "= national live births per month × regional opportunity weight × ANC access × third trimester window",
+                      "children": [
+                        {
+                          "id": "western_national_live_births_per_month_ref",
+                          "label": "National Live Births Per Month",
+                          "category": "revenue",
+                          "type": "ref",
+                          "op": null,
+                          "driver": true,
+                          "refOf": "national_live_births_per_month",
+                          "timeBehavior": "same_month_formula",
+                          "rollForward": null
+                        },
+                        {
+                          "id": "western_regional_opportunity_weight",
+                          "label": "Western Regional Opportunity Weight",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": "×",
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.25,
+                          "annualGrowth": 0,
+                          "unit": "% of national opportunity",
+                          "uncertain": false,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null
+                        },
+                        {
+                          "id": "western_anc_access_rate",
+                          "label": "Western ANC Access Rate",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": "×",
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.66,
+                          "annualGrowth": 0.003,
+                          "unit": "%",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "ANC channel reach"
+                        },
+                        {
+                          "id": "western_third_trimester_window_rate",
+                          "label": "Western Third Trimester Window Rate",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": "×",
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.56,
+                          "annualGrowth": 0.006,
+                          "unit": "%",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "Share reached in relevant gestational window"
+                        }
+                      ],
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null,
+                      "note": "Shared regional pregnancy pool"
+                    },
+                    {
+                      "id": "western_public_eligibility_rate",
+                      "label": "Western Public Eligibility Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.22,
+                      "annualGrowth": 0.08,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null,
+                      "note": "Funded or affordable share of reachable pregnancies"
+                    },
+                    {
+                      "id": "western_public_provider_recommendation_rate",
+                      "label": "Western Public Provider Recommendation Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.49,
+                      "annualGrowth": 0.04,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "western_public_acceptance_rate",
+                      "label": "Western Public Acceptance Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.78,
+                      "annualGrowth": 0.02,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "western_public_stock_availability_rate",
+                      "label": "Western Public Stock Availability Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.86,
+                      "annualGrowth": 0.015,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "western_public_active_coverage_state",
+                      "label": "Western Public Active Coverage State",
+                      "category": "revenue",
+                      "type": "calculated",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "formula": "= prior month + additions - churn",
+                      "children": [
+                        {
+                          "id": "western_public_coverage_additions",
+                          "label": "Western Public Coverage Additions",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": null,
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.018,
+                          "annualGrowth": 0.03,
+                          "unit": "% pts/month",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "Monthly rollout gain from onboarding, awareness, and funded expansion"
+                        },
+                        {
+                          "id": "western_public_coverage_churn",
+                          "label": "Western Public Coverage Churn",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": "+",
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.004,
+                          "annualGrowth": 0.0,
+                          "unit": "% pts/month",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "Loss of active coverage due to drop-off, stock issues, and execution leakage"
+                        }
+                      ],
+                      "timeBehavior": "stateful_roll_forward",
+                      "rollForward": {
+                        "month1Mode": "input",
+                        "month1Value": 0.08,
+                        "monthlyFormula": "= prior_month + additions - churn",
+                        "components": {
+                          "priorMonth": "prior_month",
+                          "additions": "western_public_coverage_additions",
+                          "churn": "western_public_coverage_churn"
+                        }
+                      },
+                      "note": "Stateful monthly coverage ramp used instead of a flat launch factor"
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "western_public_net_price_per_dose",
+                  "label": "Western Public Net Realised Price Per Dose",
+                  "category": "revenue",
+                  "type": "input",
+                  "op": "×",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 34500,
+                  "annualGrowth": 0.03,
+                  "unit": "UGX/dose",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            },
+            {
+              "id": "eastern_public_revenue",
+              "label": "Eastern Public Revenue",
+              "category": "revenue",
+              "type": "calculated",
+              "op": "+",
+              "driver": false,
+              "refOf": null,
+              "formula": "= administered doses × net realised price per dose",
+              "children": [
+                {
+                  "id": "eastern_public_administered_doses",
+                  "label": "Eastern Public Administered Doses",
+                  "category": "revenue",
+                  "type": "calculated",
+                  "op": null,
+                  "driver": true,
+                  "refOf": null,
+                  "formula": "= reachable pregnancies × eligibility × provider recommendation × acceptance × stock availability × active coverage state",
+                  "children": [
+                    {
+                      "id": "eastern_reachable_pregnancies",
+                      "label": "Eastern Reachable Pregnancies",
+                      "category": "revenue",
+                      "type": "calculated",
+                      "op": null,
+                      "driver": true,
+                      "refOf": null,
+                      "formula": "= national live births per month × regional opportunity weight × ANC access × third trimester window",
+                      "children": [
+                        {
+                          "id": "eastern_national_live_births_per_month_ref",
+                          "label": "National Live Births Per Month",
+                          "category": "revenue",
+                          "type": "ref",
+                          "op": null,
+                          "driver": true,
+                          "refOf": "national_live_births_per_month",
+                          "timeBehavior": "same_month_formula",
+                          "rollForward": null
+                        },
+                        {
+                          "id": "eastern_regional_opportunity_weight",
+                          "label": "Eastern Regional Opportunity Weight",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": "×",
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.25,
+                          "annualGrowth": 0,
+                          "unit": "% of national opportunity",
+                          "uncertain": false,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null
+                        },
+                        {
+                          "id": "eastern_anc_access_rate",
+                          "label": "Eastern ANC Access Rate",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": "×",
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.63,
+                          "annualGrowth": 0.003,
+                          "unit": "%",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "ANC channel reach"
+                        },
+                        {
+                          "id": "eastern_third_trimester_window_rate",
+                          "label": "Eastern Third Trimester Window Rate",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": "×",
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.5,
+                          "annualGrowth": 0.006,
+                          "unit": "%",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "Share reached in relevant gestational window"
+                        }
+                      ],
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null,
+                      "note": "Shared regional pregnancy pool"
+                    },
+                    {
+                      "id": "eastern_public_eligibility_rate",
+                      "label": "Eastern Public Eligibility Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.19,
+                      "annualGrowth": 0.08,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null,
+                      "note": "Funded or affordable share of reachable pregnancies"
+                    },
+                    {
+                      "id": "eastern_public_provider_recommendation_rate",
+                      "label": "Eastern Public Provider Recommendation Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.44,
+                      "annualGrowth": 0.04,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "eastern_public_acceptance_rate",
+                      "label": "Eastern Public Acceptance Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.78,
+                      "annualGrowth": 0.02,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "eastern_public_stock_availability_rate",
+                      "label": "Eastern Public Stock Availability Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.82,
+                      "annualGrowth": 0.015,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "eastern_public_active_coverage_state",
+                      "label": "Eastern Public Active Coverage State",
+                      "category": "revenue",
+                      "type": "calculated",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "formula": "= prior month + additions - churn",
+                      "children": [
+                        {
+                          "id": "eastern_public_coverage_additions",
+                          "label": "Eastern Public Coverage Additions",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": null,
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.014,
+                          "annualGrowth": 0.03,
+                          "unit": "% pts/month",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "Monthly rollout gain from onboarding, awareness, and funded expansion"
+                        },
+                        {
+                          "id": "eastern_public_coverage_churn",
+                          "label": "Eastern Public Coverage Churn",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": "+",
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.004,
+                          "annualGrowth": 0.0,
+                          "unit": "% pts/month",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "Loss of active coverage due to drop-off, stock issues, and execution leakage"
+                        }
+                      ],
+                      "timeBehavior": "stateful_roll_forward",
+                      "rollForward": {
+                        "month1Mode": "input",
+                        "month1Value": 0.08,
+                        "monthlyFormula": "= prior_month + additions - churn",
+                        "components": {
+                          "priorMonth": "prior_month",
+                          "additions": "eastern_public_coverage_additions",
+                          "churn": "eastern_public_coverage_churn"
+                        }
+                      },
+                      "note": "Stateful monthly coverage ramp used instead of a flat launch factor"
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "eastern_public_net_price_per_dose",
+                  "label": "Eastern Public Net Realised Price Per Dose",
+                  "category": "revenue",
+                  "type": "input",
+                  "op": "×",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 33500,
+                  "annualGrowth": 0.03,
+                  "unit": "UGX/dose",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            },
+            {
+              "id": "northern_public_revenue",
+              "label": "Northern Public Revenue",
+              "category": "revenue",
+              "type": "calculated",
+              "op": "+",
+              "driver": false,
+              "refOf": null,
+              "formula": "= administered doses × net realised price per dose",
+              "children": [
+                {
+                  "id": "northern_public_administered_doses",
+                  "label": "Northern Public Administered Doses",
+                  "category": "revenue",
+                  "type": "calculated",
+                  "op": null,
+                  "driver": true,
+                  "refOf": null,
+                  "formula": "= reachable pregnancies × eligibility × provider recommendation × acceptance × stock availability × active coverage state",
+                  "children": [
+                    {
+                      "id": "northern_reachable_pregnancies",
+                      "label": "Northern Reachable Pregnancies",
+                      "category": "revenue",
+                      "type": "calculated",
+                      "op": null,
+                      "driver": true,
+                      "refOf": null,
+                      "formula": "= national live births per month × regional opportunity weight × ANC access × third trimester window",
+                      "children": [
+                        {
+                          "id": "northern_national_live_births_per_month_ref",
+                          "label": "National Live Births Per Month",
+                          "category": "revenue",
+                          "type": "ref",
+                          "op": null,
+                          "driver": true,
+                          "refOf": "national_live_births_per_month",
+                          "timeBehavior": "same_month_formula",
+                          "rollForward": null
+                        },
+                        {
+                          "id": "northern_regional_opportunity_weight",
+                          "label": "Northern Regional Opportunity Weight",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": "×",
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.22,
+                          "annualGrowth": 0,
+                          "unit": "% of national opportunity",
+                          "uncertain": false,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null
+                        },
+                        {
+                          "id": "northern_anc_access_rate",
+                          "label": "Northern ANC Access Rate",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": "×",
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.58,
+                          "annualGrowth": 0.003,
+                          "unit": "%",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "ANC channel reach"
+                        },
+                        {
+                          "id": "northern_third_trimester_window_rate",
+                          "label": "Northern Third Trimester Window Rate",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": "×",
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.45,
+                          "annualGrowth": 0.006,
+                          "unit": "%",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "Share reached in relevant gestational window"
+                        }
+                      ],
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null,
+                      "note": "Shared regional pregnancy pool"
+                    },
+                    {
+                      "id": "northern_public_eligibility_rate",
+                      "label": "Northern Public Eligibility Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.17,
+                      "annualGrowth": 0.08,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null,
+                      "note": "Funded or affordable share of reachable pregnancies"
+                    },
+                    {
+                      "id": "northern_public_provider_recommendation_rate",
+                      "label": "Northern Public Provider Recommendation Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.39,
+                      "annualGrowth": 0.04,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "northern_public_acceptance_rate",
+                      "label": "Northern Public Acceptance Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.78,
+                      "annualGrowth": 0.02,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "northern_public_stock_availability_rate",
+                      "label": "Northern Public Stock Availability Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.78,
+                      "annualGrowth": 0.015,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "northern_public_active_coverage_state",
+                      "label": "Northern Public Active Coverage State",
+                      "category": "revenue",
+                      "type": "calculated",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "formula": "= prior month + additions - churn",
+                      "children": [
+                        {
+                          "id": "northern_public_coverage_additions",
+                          "label": "Northern Public Coverage Additions",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": null,
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.011,
+                          "annualGrowth": 0.03,
+                          "unit": "% pts/month",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "Monthly rollout gain from onboarding, awareness, and funded expansion"
+                        },
+                        {
+                          "id": "northern_public_coverage_churn",
+                          "label": "Northern Public Coverage Churn",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": "+",
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.004,
+                          "annualGrowth": 0.0,
+                          "unit": "% pts/month",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "Loss of active coverage due to drop-off, stock issues, and execution leakage"
+                        }
+                      ],
+                      "timeBehavior": "stateful_roll_forward",
+                      "rollForward": {
+                        "month1Mode": "input",
+                        "month1Value": 0.08,
+                        "monthlyFormula": "= prior_month + additions - churn",
+                        "components": {
+                          "priorMonth": "prior_month",
+                          "additions": "northern_public_coverage_additions",
+                          "churn": "northern_public_coverage_churn"
+                        }
+                      },
+                      "note": "Stateful monthly coverage ramp used instead of a flat launch factor"
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "northern_public_net_price_per_dose",
+                  "label": "Northern Public Net Realised Price Per Dose",
+                  "category": "revenue",
+                  "type": "input",
+                  "op": "×",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 32500,
+                  "annualGrowth": 0.03,
+                  "unit": "UGX/dose",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            }
+          ],
+          "timeBehavior": "same_month_formula",
+          "rollForward": null
+        },
+        {
+          "id": "private_revenue",
+          "label": "Private Revenue",
+          "category": "revenue",
+          "type": "calculated",
+          "op": "+",
+          "driver": false,
+          "refOf": null,
+          "formula": "= sum of regional private revenue",
+          "children": [
+            {
+              "id": "central_private_revenue",
+              "label": "Central Private Revenue",
+              "category": "revenue",
+              "type": "calculated",
+              "op": null,
+              "driver": false,
+              "refOf": null,
+              "formula": "= administered doses × net realised price per dose",
+              "children": [
+                {
+                  "id": "central_private_administered_doses",
+                  "label": "Central Private Administered Doses",
+                  "category": "revenue",
+                  "type": "calculated",
+                  "op": null,
+                  "driver": true,
+                  "refOf": null,
+                  "formula": "= reachable pregnancies × eligibility × provider recommendation × acceptance × stock availability × active coverage state",
+                  "children": [
+                    {
+                      "id": "central_private_reachable_pregnancies_ref",
+                      "label": "Central Reachable Pregnancies",
+                      "category": "revenue",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "central_reachable_pregnancies",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "central_private_eligibility_rate",
+                      "label": "Central Private Eligibility Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.07,
+                      "annualGrowth": 0.06,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null,
+                      "note": "Funded or affordable share of reachable pregnancies"
+                    },
+                    {
+                      "id": "central_private_provider_recommendation_rate",
+                      "label": "Central Private Provider Recommendation Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.67,
+                      "annualGrowth": 0.04,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "central_private_acceptance_rate",
+                      "label": "Central Private Acceptance Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.81,
+                      "annualGrowth": 0.02,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "central_private_stock_availability_rate",
+                      "label": "Central Private Stock Availability Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.94,
+                      "annualGrowth": 0.015,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "central_private_active_coverage_state",
+                      "label": "Central Private Active Coverage State",
+                      "category": "revenue",
+                      "type": "calculated",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "formula": "= prior month + additions - churn",
+                      "children": [
+                        {
+                          "id": "central_private_coverage_additions",
+                          "label": "Central Private Coverage Additions",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": null,
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.02125,
+                          "annualGrowth": 0.03,
+                          "unit": "% pts/month",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "Monthly rollout gain from onboarding, awareness, and funded expansion"
+                        },
+                        {
+                          "id": "central_private_coverage_churn",
+                          "label": "Central Private Coverage Churn",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": "+",
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.006,
+                          "annualGrowth": 0.0,
+                          "unit": "% pts/month",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "Loss of active coverage due to drop-off, stock issues, and execution leakage"
+                        }
+                      ],
+                      "timeBehavior": "stateful_roll_forward",
+                      "rollForward": {
+                        "month1Mode": "input",
+                        "month1Value": 0.05,
+                        "monthlyFormula": "= prior_month + additions - churn",
+                        "components": {
+                          "priorMonth": "prior_month",
+                          "additions": "central_private_coverage_additions",
+                          "churn": "central_private_coverage_churn"
+                        }
+                      },
+                      "note": "Stateful monthly coverage ramp used instead of a flat launch factor"
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "central_private_net_price_per_dose",
+                  "label": "Central Private Net Realised Price Per Dose",
+                  "category": "revenue",
+                  "type": "input",
+                  "op": "×",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 118000,
+                  "annualGrowth": 0.035,
+                  "unit": "UGX/dose",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            },
+            {
+              "id": "western_private_revenue",
+              "label": "Western Private Revenue",
+              "category": "revenue",
+              "type": "calculated",
+              "op": "+",
+              "driver": false,
+              "refOf": null,
+              "formula": "= administered doses × net realised price per dose",
+              "children": [
+                {
+                  "id": "western_private_administered_doses",
+                  "label": "Western Private Administered Doses",
+                  "category": "revenue",
+                  "type": "calculated",
+                  "op": null,
+                  "driver": true,
+                  "refOf": null,
+                  "formula": "= reachable pregnancies × eligibility × provider recommendation × acceptance × stock availability × active coverage state",
+                  "children": [
+                    {
+                      "id": "western_private_reachable_pregnancies_ref",
+                      "label": "Western Reachable Pregnancies",
+                      "category": "revenue",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "western_reachable_pregnancies",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "western_private_eligibility_rate",
+                      "label": "Western Private Eligibility Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.035,
+                      "annualGrowth": 0.06,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null,
+                      "note": "Funded or affordable share of reachable pregnancies"
+                    },
+                    {
+                      "id": "western_private_provider_recommendation_rate",
+                      "label": "Western Private Provider Recommendation Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.55,
+                      "annualGrowth": 0.04,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "western_private_acceptance_rate",
+                      "label": "Western Private Acceptance Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.81,
+                      "annualGrowth": 0.02,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "western_private_stock_availability_rate",
+                      "label": "Western Private Stock Availability Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.9,
+                      "annualGrowth": 0.015,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "western_private_active_coverage_state",
+                      "label": "Western Private Active Coverage State",
+                      "category": "revenue",
+                      "type": "calculated",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "formula": "= prior month + additions - churn",
+                      "children": [
+                        {
+                          "id": "western_private_coverage_additions",
+                          "label": "Western Private Coverage Additions",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": null,
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.015299999999999998,
+                          "annualGrowth": 0.03,
+                          "unit": "% pts/month",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "Monthly rollout gain from onboarding, awareness, and funded expansion"
+                        },
+                        {
+                          "id": "western_private_coverage_churn",
+                          "label": "Western Private Coverage Churn",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": "+",
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.006,
+                          "annualGrowth": 0.0,
+                          "unit": "% pts/month",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "Loss of active coverage due to drop-off, stock issues, and execution leakage"
+                        }
+                      ],
+                      "timeBehavior": "stateful_roll_forward",
+                      "rollForward": {
+                        "month1Mode": "input",
+                        "month1Value": 0.05,
+                        "monthlyFormula": "= prior_month + additions - churn",
+                        "components": {
+                          "priorMonth": "prior_month",
+                          "additions": "western_private_coverage_additions",
+                          "churn": "western_private_coverage_churn"
+                        }
+                      },
+                      "note": "Stateful monthly coverage ramp used instead of a flat launch factor"
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "western_private_net_price_per_dose",
+                  "label": "Western Private Net Realised Price Per Dose",
+                  "category": "revenue",
+                  "type": "input",
+                  "op": "×",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 102000,
+                  "annualGrowth": 0.035,
+                  "unit": "UGX/dose",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            },
+            {
+              "id": "eastern_private_revenue",
+              "label": "Eastern Private Revenue",
+              "category": "revenue",
+              "type": "calculated",
+              "op": "+",
+              "driver": false,
+              "refOf": null,
+              "formula": "= administered doses × net realised price per dose",
+              "children": [
+                {
+                  "id": "eastern_private_administered_doses",
+                  "label": "Eastern Private Administered Doses",
+                  "category": "revenue",
+                  "type": "calculated",
+                  "op": null,
+                  "driver": true,
+                  "refOf": null,
+                  "formula": "= reachable pregnancies × eligibility × provider recommendation × acceptance × stock availability × active coverage state",
+                  "children": [
+                    {
+                      "id": "eastern_private_reachable_pregnancies_ref",
+                      "label": "Eastern Reachable Pregnancies",
+                      "category": "revenue",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "eastern_reachable_pregnancies",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "eastern_private_eligibility_rate",
+                      "label": "Eastern Private Eligibility Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.018,
+                      "annualGrowth": 0.06,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null,
+                      "note": "Funded or affordable share of reachable pregnancies"
+                    },
+                    {
+                      "id": "eastern_private_provider_recommendation_rate",
+                      "label": "Eastern Private Provider Recommendation Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.46,
+                      "annualGrowth": 0.04,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "eastern_private_acceptance_rate",
+                      "label": "Eastern Private Acceptance Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.81,
+                      "annualGrowth": 0.02,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "eastern_private_stock_availability_rate",
+                      "label": "Eastern Private Stock Availability Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.86,
+                      "annualGrowth": 0.015,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "eastern_private_active_coverage_state",
+                      "label": "Eastern Private Active Coverage State",
+                      "category": "revenue",
+                      "type": "calculated",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "formula": "= prior month + additions - churn",
+                      "children": [
+                        {
+                          "id": "eastern_private_coverage_additions",
+                          "label": "Eastern Private Coverage Additions",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": null,
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.011899999999999999,
+                          "annualGrowth": 0.03,
+                          "unit": "% pts/month",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "Monthly rollout gain from onboarding, awareness, and funded expansion"
+                        },
+                        {
+                          "id": "eastern_private_coverage_churn",
+                          "label": "Eastern Private Coverage Churn",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": "+",
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.006,
+                          "annualGrowth": 0.0,
+                          "unit": "% pts/month",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "Loss of active coverage due to drop-off, stock issues, and execution leakage"
+                        }
+                      ],
+                      "timeBehavior": "stateful_roll_forward",
+                      "rollForward": {
+                        "month1Mode": "input",
+                        "month1Value": 0.05,
+                        "monthlyFormula": "= prior_month + additions - churn",
+                        "components": {
+                          "priorMonth": "prior_month",
+                          "additions": "eastern_private_coverage_additions",
+                          "churn": "eastern_private_coverage_churn"
+                        }
+                      },
+                      "note": "Stateful monthly coverage ramp used instead of a flat launch factor"
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "eastern_private_net_price_per_dose",
+                  "label": "Eastern Private Net Realised Price Per Dose",
+                  "category": "revenue",
+                  "type": "input",
+                  "op": "×",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 88000,
+                  "annualGrowth": 0.035,
+                  "unit": "UGX/dose",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            },
+            {
+              "id": "northern_private_revenue",
+              "label": "Northern Private Revenue",
+              "category": "revenue",
+              "type": "calculated",
+              "op": "+",
+              "driver": false,
+              "refOf": null,
+              "formula": "= administered doses × net realised price per dose",
+              "children": [
+                {
+                  "id": "northern_private_administered_doses",
+                  "label": "Northern Private Administered Doses",
+                  "category": "revenue",
+                  "type": "calculated",
+                  "op": null,
+                  "driver": true,
+                  "refOf": null,
+                  "formula": "= reachable pregnancies × eligibility × provider recommendation × acceptance × stock availability × active coverage state",
+                  "children": [
+                    {
+                      "id": "northern_private_reachable_pregnancies_ref",
+                      "label": "Northern Reachable Pregnancies",
+                      "category": "revenue",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "northern_reachable_pregnancies",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "northern_private_eligibility_rate",
+                      "label": "Northern Private Eligibility Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.01,
+                      "annualGrowth": 0.06,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null,
+                      "note": "Funded or affordable share of reachable pregnancies"
+                    },
+                    {
+                      "id": "northern_private_provider_recommendation_rate",
+                      "label": "Northern Private Provider Recommendation Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.38,
+                      "annualGrowth": 0.04,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "northern_private_acceptance_rate",
+                      "label": "Northern Private Acceptance Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.81,
+                      "annualGrowth": 0.02,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "northern_private_stock_availability_rate",
+                      "label": "Northern Private Stock Availability Rate",
+                      "category": "revenue",
+                      "type": "input",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "startingValue": 0.82,
+                      "annualGrowth": 0.015,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "northern_private_active_coverage_state",
+                      "label": "Northern Private Active Coverage State",
+                      "category": "revenue",
+                      "type": "calculated",
+                      "op": "×",
+                      "driver": true,
+                      "refOf": null,
+                      "formula": "= prior month + additions - churn",
+                      "children": [
+                        {
+                          "id": "northern_private_coverage_additions",
+                          "label": "Northern Private Coverage Additions",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": null,
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.009349999999999999,
+                          "annualGrowth": 0.03,
+                          "unit": "% pts/month",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "Monthly rollout gain from onboarding, awareness, and funded expansion"
+                        },
+                        {
+                          "id": "northern_private_coverage_churn",
+                          "label": "Northern Private Coverage Churn",
+                          "category": "revenue",
+                          "type": "input",
+                          "op": "+",
+                          "driver": true,
+                          "refOf": null,
+                          "startingValue": 0.006,
+                          "annualGrowth": 0.0,
+                          "unit": "% pts/month",
+                          "uncertain": true,
+                          "timeBehavior": "point_in_time",
+                          "rollForward": null,
+                          "note": "Loss of active coverage due to drop-off, stock issues, and execution leakage"
+                        }
+                      ],
+                      "timeBehavior": "stateful_roll_forward",
+                      "rollForward": {
+                        "month1Mode": "input",
+                        "month1Value": 0.05,
+                        "monthlyFormula": "= prior_month + additions - churn",
+                        "components": {
+                          "priorMonth": "prior_month",
+                          "additions": "northern_private_coverage_additions",
+                          "churn": "northern_private_coverage_churn"
+                        }
+                      },
+                      "note": "Stateful monthly coverage ramp used instead of a flat launch factor"
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "northern_private_net_price_per_dose",
+                  "label": "Northern Private Net Realised Price Per Dose",
+                  "category": "revenue",
+                  "type": "input",
+                  "op": "×",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 76000,
+                  "annualGrowth": 0.035,
+                  "unit": "UGX/dose",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            }
+          ],
+          "timeBehavior": "same_month_formula",
+          "rollForward": null
+        }
+      ],
+      "timeBehavior": "same_month_formula",
+      "rollForward": null
+    },
+    {
+      "id": "total_costs",
+      "label": "Total Costs",
+      "category": "fixed",
+      "type": "calculated",
+      "op": "−",
+      "driver": false,
+      "refOf": null,
+      "formula": "= total variable costs + total fixed costs",
+      "children": [
+        {
+          "id": "total_variable_costs",
+          "label": "Total Variable Costs",
+          "category": "variable",
+          "type": "calculated",
+          "op": null,
+          "driver": false,
+          "refOf": null,
+          "formula": "= sum of all variable cost lines",
+          "children": [
+            {
+              "id": "landed_vaccine_cost",
+              "label": "Landed Vaccine Cost",
+              "category": "variable",
+              "type": "calculated",
+              "op": null,
+              "driver": false,
+              "refOf": null,
+              "formula": "= sum of regional channel costs",
+              "children": [
+                {
+                  "id": "central_public_landed_vaccine_cost",
+                  "label": "Central Public Landed Vaccine Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": null,
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × landed vaccine cost per dose",
+                  "children": [
+                    {
+                      "id": "central_public_landed_vaccine_cost_doses_ref",
+                      "label": "Central Public Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "central_public_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "landed_vaccine_cost_per_dose",
+                      "label": "Landed Vaccine Cost Per Dose",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 20500,
+                      "annualGrowth": 0.035,
+                      "unit": "UGX/dose",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null,
+                      "note": "Leaner transfer price assumption"
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "central_private_landed_vaccine_cost",
+                  "label": "Central Private Landed Vaccine Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × landed vaccine cost per dose",
+                  "children": [
+                    {
+                      "id": "central_private_landed_vaccine_cost_doses_ref",
+                      "label": "Central Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "central_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "central_private_landed_vaccine_cost_per_dose_ref",
+                      "label": "Landed Vaccine Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "landed_vaccine_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "western_public_landed_vaccine_cost",
+                  "label": "Western Public Landed Vaccine Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × landed vaccine cost per dose",
+                  "children": [
+                    {
+                      "id": "western_public_landed_vaccine_cost_doses_ref",
+                      "label": "Western Public Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "western_public_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "western_public_landed_vaccine_cost_per_dose_ref",
+                      "label": "Landed Vaccine Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "landed_vaccine_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "western_private_landed_vaccine_cost",
+                  "label": "Western Private Landed Vaccine Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × landed vaccine cost per dose",
+                  "children": [
+                    {
+                      "id": "western_private_landed_vaccine_cost_doses_ref",
+                      "label": "Western Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "western_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "western_private_landed_vaccine_cost_per_dose_ref",
+                      "label": "Landed Vaccine Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "landed_vaccine_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "eastern_public_landed_vaccine_cost",
+                  "label": "Eastern Public Landed Vaccine Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × landed vaccine cost per dose",
+                  "children": [
+                    {
+                      "id": "eastern_public_landed_vaccine_cost_doses_ref",
+                      "label": "Eastern Public Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "eastern_public_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "eastern_public_landed_vaccine_cost_per_dose_ref",
+                      "label": "Landed Vaccine Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "landed_vaccine_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "eastern_private_landed_vaccine_cost",
+                  "label": "Eastern Private Landed Vaccine Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × landed vaccine cost per dose",
+                  "children": [
+                    {
+                      "id": "eastern_private_landed_vaccine_cost_doses_ref",
+                      "label": "Eastern Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "eastern_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "eastern_private_landed_vaccine_cost_per_dose_ref",
+                      "label": "Landed Vaccine Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "landed_vaccine_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "northern_public_landed_vaccine_cost",
+                  "label": "Northern Public Landed Vaccine Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × landed vaccine cost per dose",
+                  "children": [
+                    {
+                      "id": "northern_public_landed_vaccine_cost_doses_ref",
+                      "label": "Northern Public Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "northern_public_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "northern_public_landed_vaccine_cost_per_dose_ref",
+                      "label": "Landed Vaccine Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "landed_vaccine_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "northern_private_landed_vaccine_cost",
+                  "label": "Northern Private Landed Vaccine Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × landed vaccine cost per dose",
+                  "children": [
+                    {
+                      "id": "northern_private_landed_vaccine_cost_doses_ref",
+                      "label": "Northern Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "northern_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "northern_private_landed_vaccine_cost_per_dose_ref",
+                      "label": "Landed Vaccine Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "landed_vaccine_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            },
+            {
+              "id": "import_clearance_cost",
+              "label": "Import and Clearance Cost",
+              "category": "variable",
+              "type": "calculated",
+              "op": "+",
+              "driver": false,
+              "refOf": null,
+              "formula": "= sum of regional channel costs",
+              "children": [
+                {
+                  "id": "central_public_import_clearance_cost",
+                  "label": "Central Public Import and Clearance Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": null,
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × import and clearance cost per dose",
+                  "children": [
+                    {
+                      "id": "central_public_import_clearance_cost_doses_ref",
+                      "label": "Central Public Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "central_public_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "import_clearance_cost_per_dose",
+                      "label": "Import and Clearance Cost Per Dose",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 850,
+                      "annualGrowth": 0.04,
+                      "unit": "UGX/dose",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null,
+                      "note": "International freight and import handling"
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "central_private_import_clearance_cost",
+                  "label": "Central Private Import and Clearance Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × import and clearance cost per dose",
+                  "children": [
+                    {
+                      "id": "central_private_import_clearance_cost_doses_ref",
+                      "label": "Central Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "central_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "central_private_import_clearance_cost_per_dose_ref",
+                      "label": "Import and Clearance Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "import_clearance_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "western_public_import_clearance_cost",
+                  "label": "Western Public Import and Clearance Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × import and clearance cost per dose",
+                  "children": [
+                    {
+                      "id": "western_public_import_clearance_cost_doses_ref",
+                      "label": "Western Public Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "western_public_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "western_public_import_clearance_cost_per_dose_ref",
+                      "label": "Import and Clearance Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "import_clearance_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "western_private_import_clearance_cost",
+                  "label": "Western Private Import and Clearance Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × import and clearance cost per dose",
+                  "children": [
+                    {
+                      "id": "western_private_import_clearance_cost_doses_ref",
+                      "label": "Western Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "western_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "western_private_import_clearance_cost_per_dose_ref",
+                      "label": "Import and Clearance Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "import_clearance_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "eastern_public_import_clearance_cost",
+                  "label": "Eastern Public Import and Clearance Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × import and clearance cost per dose",
+                  "children": [
+                    {
+                      "id": "eastern_public_import_clearance_cost_doses_ref",
+                      "label": "Eastern Public Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "eastern_public_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "eastern_public_import_clearance_cost_per_dose_ref",
+                      "label": "Import and Clearance Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "import_clearance_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "eastern_private_import_clearance_cost",
+                  "label": "Eastern Private Import and Clearance Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × import and clearance cost per dose",
+                  "children": [
+                    {
+                      "id": "eastern_private_import_clearance_cost_doses_ref",
+                      "label": "Eastern Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "eastern_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "eastern_private_import_clearance_cost_per_dose_ref",
+                      "label": "Import and Clearance Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "import_clearance_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "northern_public_import_clearance_cost",
+                  "label": "Northern Public Import and Clearance Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × import and clearance cost per dose",
+                  "children": [
+                    {
+                      "id": "northern_public_import_clearance_cost_doses_ref",
+                      "label": "Northern Public Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "northern_public_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "northern_public_import_clearance_cost_per_dose_ref",
+                      "label": "Import and Clearance Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "import_clearance_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "northern_private_import_clearance_cost",
+                  "label": "Northern Private Import and Clearance Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × import and clearance cost per dose",
+                  "children": [
+                    {
+                      "id": "northern_private_import_clearance_cost_doses_ref",
+                      "label": "Northern Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "northern_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "northern_private_import_clearance_cost_per_dose_ref",
+                      "label": "Import and Clearance Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "import_clearance_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            },
+            {
+              "id": "cold_chain_warehousing_cost",
+              "label": "Cold-Chain Warehousing Cost",
+              "category": "variable",
+              "type": "calculated",
+              "op": "+",
+              "driver": false,
+              "refOf": null,
+              "formula": "= sum of regional channel costs",
+              "children": [
+                {
+                  "id": "central_public_cold_chain_warehousing_cost",
+                  "label": "Central Public Cold-Chain Warehousing Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": null,
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × cold-chain warehousing cost per dose",
+                  "children": [
+                    {
+                      "id": "central_public_cold_chain_warehousing_cost_doses_ref",
+                      "label": "Central Public Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "central_public_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "cold_chain_warehousing_cost_per_dose",
+                      "label": "Cold-Chain Warehousing Cost Per Dose",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 950,
+                      "annualGrowth": 0.04,
+                      "unit": "UGX/dose",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null,
+                      "note": "National warehousing and cold-chain holding"
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "central_private_cold_chain_warehousing_cost",
+                  "label": "Central Private Cold-Chain Warehousing Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × cold-chain warehousing cost per dose",
+                  "children": [
+                    {
+                      "id": "central_private_cold_chain_warehousing_cost_doses_ref",
+                      "label": "Central Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "central_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "central_private_cold_chain_warehousing_cost_per_dose_ref",
+                      "label": "Cold-Chain Warehousing Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "cold_chain_warehousing_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "western_public_cold_chain_warehousing_cost",
+                  "label": "Western Public Cold-Chain Warehousing Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × cold-chain warehousing cost per dose",
+                  "children": [
+                    {
+                      "id": "western_public_cold_chain_warehousing_cost_doses_ref",
+                      "label": "Western Public Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "western_public_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "western_public_cold_chain_warehousing_cost_per_dose_ref",
+                      "label": "Cold-Chain Warehousing Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "cold_chain_warehousing_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "western_private_cold_chain_warehousing_cost",
+                  "label": "Western Private Cold-Chain Warehousing Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × cold-chain warehousing cost per dose",
+                  "children": [
+                    {
+                      "id": "western_private_cold_chain_warehousing_cost_doses_ref",
+                      "label": "Western Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "western_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "western_private_cold_chain_warehousing_cost_per_dose_ref",
+                      "label": "Cold-Chain Warehousing Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "cold_chain_warehousing_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "eastern_public_cold_chain_warehousing_cost",
+                  "label": "Eastern Public Cold-Chain Warehousing Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × cold-chain warehousing cost per dose",
+                  "children": [
+                    {
+                      "id": "eastern_public_cold_chain_warehousing_cost_doses_ref",
+                      "label": "Eastern Public Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "eastern_public_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "eastern_public_cold_chain_warehousing_cost_per_dose_ref",
+                      "label": "Cold-Chain Warehousing Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "cold_chain_warehousing_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "eastern_private_cold_chain_warehousing_cost",
+                  "label": "Eastern Private Cold-Chain Warehousing Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × cold-chain warehousing cost per dose",
+                  "children": [
+                    {
+                      "id": "eastern_private_cold_chain_warehousing_cost_doses_ref",
+                      "label": "Eastern Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "eastern_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "eastern_private_cold_chain_warehousing_cost_per_dose_ref",
+                      "label": "Cold-Chain Warehousing Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "cold_chain_warehousing_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "northern_public_cold_chain_warehousing_cost",
+                  "label": "Northern Public Cold-Chain Warehousing Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × cold-chain warehousing cost per dose",
+                  "children": [
+                    {
+                      "id": "northern_public_cold_chain_warehousing_cost_doses_ref",
+                      "label": "Northern Public Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "northern_public_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "northern_public_cold_chain_warehousing_cost_per_dose_ref",
+                      "label": "Cold-Chain Warehousing Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "cold_chain_warehousing_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "northern_private_cold_chain_warehousing_cost",
+                  "label": "Northern Private Cold-Chain Warehousing Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × cold-chain warehousing cost per dose",
+                  "children": [
+                    {
+                      "id": "northern_private_cold_chain_warehousing_cost_doses_ref",
+                      "label": "Northern Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "northern_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "northern_private_cold_chain_warehousing_cost_per_dose_ref",
+                      "label": "Cold-Chain Warehousing Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "cold_chain_warehousing_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            },
+            {
+              "id": "public_regional_distribution_cost",
+              "label": "Public Regional Distribution Cost",
+              "category": "variable",
+              "type": "calculated",
+              "op": "+",
+              "driver": false,
+              "refOf": null,
+              "formula": "= sum of regional channel distribution costs",
+              "children": [
+                {
+                  "id": "central_public_distribution_cost",
+                  "label": "Central Public Distribution Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": null,
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × regional distribution cost per dose",
+                  "children": [
+                    {
+                      "id": "central_public_distribution_doses_ref",
+                      "label": "Central Public Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "central_public_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "central_public_distribution_cost_per_dose",
+                      "label": "Central Public Distribution Cost Per Dose",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 2500,
+                      "annualGrowth": 0.04,
+                      "unit": "UGX/dose",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "western_public_distribution_cost",
+                  "label": "Western Public Distribution Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × regional distribution cost per dose",
+                  "children": [
+                    {
+                      "id": "western_public_distribution_doses_ref",
+                      "label": "Western Public Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "western_public_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "western_public_distribution_cost_per_dose",
+                      "label": "Western Public Distribution Cost Per Dose",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 3400,
+                      "annualGrowth": 0.04,
+                      "unit": "UGX/dose",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "eastern_public_distribution_cost",
+                  "label": "Eastern Public Distribution Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × regional distribution cost per dose",
+                  "children": [
+                    {
+                      "id": "eastern_public_distribution_doses_ref",
+                      "label": "Eastern Public Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "eastern_public_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "eastern_public_distribution_cost_per_dose",
+                      "label": "Eastern Public Distribution Cost Per Dose",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 4200,
+                      "annualGrowth": 0.04,
+                      "unit": "UGX/dose",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "northern_public_distribution_cost",
+                  "label": "Northern Public Distribution Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × regional distribution cost per dose",
+                  "children": [
+                    {
+                      "id": "northern_public_distribution_doses_ref",
+                      "label": "Northern Public Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "northern_public_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "northern_public_distribution_cost_per_dose",
+                      "label": "Northern Public Distribution Cost Per Dose",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 5600,
+                      "annualGrowth": 0.04,
+                      "unit": "UGX/dose",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            },
+            {
+              "id": "private_regional_distribution_cost",
+              "label": "Private Regional Distribution Cost",
+              "category": "variable",
+              "type": "calculated",
+              "op": "+",
+              "driver": false,
+              "refOf": null,
+              "formula": "= sum of regional channel distribution costs",
+              "children": [
+                {
+                  "id": "central_private_distribution_cost",
+                  "label": "Central Private Distribution Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": null,
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × regional distribution cost per dose",
+                  "children": [
+                    {
+                      "id": "central_private_distribution_doses_ref",
+                      "label": "Central Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "central_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "central_private_distribution_cost_per_dose",
+                      "label": "Central Private Distribution Cost Per Dose",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 3200,
+                      "annualGrowth": 0.04,
+                      "unit": "UGX/dose",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "western_private_distribution_cost",
+                  "label": "Western Private Distribution Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × regional distribution cost per dose",
+                  "children": [
+                    {
+                      "id": "western_private_distribution_doses_ref",
+                      "label": "Western Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "western_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "western_private_distribution_cost_per_dose",
+                      "label": "Western Private Distribution Cost Per Dose",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 4300,
+                      "annualGrowth": 0.04,
+                      "unit": "UGX/dose",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "eastern_private_distribution_cost",
+                  "label": "Eastern Private Distribution Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × regional distribution cost per dose",
+                  "children": [
+                    {
+                      "id": "eastern_private_distribution_doses_ref",
+                      "label": "Eastern Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "eastern_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "eastern_private_distribution_cost_per_dose",
+                      "label": "Eastern Private Distribution Cost Per Dose",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 5100,
+                      "annualGrowth": 0.04,
+                      "unit": "UGX/dose",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "northern_private_distribution_cost",
+                  "label": "Northern Private Distribution Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × regional distribution cost per dose",
+                  "children": [
+                    {
+                      "id": "northern_private_distribution_doses_ref",
+                      "label": "Northern Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "northern_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "northern_private_distribution_cost_per_dose",
+                      "label": "Northern Private Distribution Cost Per Dose",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 6600,
+                      "annualGrowth": 0.04,
+                      "unit": "UGX/dose",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            },
+            {
+              "id": "public_wastage_cost",
+              "label": "Public Wastage Cost",
+              "category": "variable",
+              "type": "calculated",
+              "op": "+",
+              "driver": false,
+              "refOf": null,
+              "formula": "= sum of channel wastage costs",
+              "children": [
+                {
+                  "id": "central_public_wastage_cost",
+                  "label": "Central Public Wastage Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": null,
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × wastage rate × landed vaccine cost per dose",
+                  "children": [
+                    {
+                      "id": "central_public_wastage_doses_ref",
+                      "label": "Central Public Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "central_public_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "central_public_wastage_rate",
+                      "label": "Central Public Wastage Rate",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 0.035,
+                      "annualGrowth": 0,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "central_public_landed_ref",
+                      "label": "Landed Vaccine Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "landed_vaccine_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "western_public_wastage_cost",
+                  "label": "Western Public Wastage Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × wastage rate × landed vaccine cost per dose",
+                  "children": [
+                    {
+                      "id": "western_public_wastage_doses_ref",
+                      "label": "Western Public Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "western_public_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "western_public_wastage_rate",
+                      "label": "Western Public Wastage Rate",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 0.045,
+                      "annualGrowth": 0,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "western_public_landed_ref",
+                      "label": "Landed Vaccine Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "landed_vaccine_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "eastern_public_wastage_cost",
+                  "label": "Eastern Public Wastage Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × wastage rate × landed vaccine cost per dose",
+                  "children": [
+                    {
+                      "id": "eastern_public_wastage_doses_ref",
+                      "label": "Eastern Public Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "eastern_public_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "eastern_public_wastage_rate",
+                      "label": "Eastern Public Wastage Rate",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 0.055,
+                      "annualGrowth": 0,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "eastern_public_landed_ref",
+                      "label": "Landed Vaccine Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "landed_vaccine_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "northern_public_wastage_cost",
+                  "label": "Northern Public Wastage Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × wastage rate × landed vaccine cost per dose",
+                  "children": [
+                    {
+                      "id": "northern_public_wastage_doses_ref",
+                      "label": "Northern Public Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "northern_public_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "northern_public_wastage_rate",
+                      "label": "Northern Public Wastage Rate",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 0.07,
+                      "annualGrowth": 0,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "northern_public_landed_ref",
+                      "label": "Landed Vaccine Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "landed_vaccine_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            },
+            {
+              "id": "private_wastage_cost",
+              "label": "Private Wastage Cost",
+              "category": "variable",
+              "type": "calculated",
+              "op": "+",
+              "driver": false,
+              "refOf": null,
+              "formula": "= sum of channel wastage costs",
+              "children": [
+                {
+                  "id": "central_private_wastage_cost",
+                  "label": "Central Private Wastage Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": null,
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × wastage rate × landed vaccine cost per dose",
+                  "children": [
+                    {
+                      "id": "central_private_wastage_doses_ref",
+                      "label": "Central Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "central_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "central_private_wastage_rate",
+                      "label": "Central Private Wastage Rate",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 0.03,
+                      "annualGrowth": 0,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "central_private_landed_ref",
+                      "label": "Landed Vaccine Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "landed_vaccine_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "western_private_wastage_cost",
+                  "label": "Western Private Wastage Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × wastage rate × landed vaccine cost per dose",
+                  "children": [
+                    {
+                      "id": "western_private_wastage_doses_ref",
+                      "label": "Western Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "western_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "western_private_wastage_rate",
+                      "label": "Western Private Wastage Rate",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 0.04,
+                      "annualGrowth": 0,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "western_private_landed_ref",
+                      "label": "Landed Vaccine Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "landed_vaccine_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "eastern_private_wastage_cost",
+                  "label": "Eastern Private Wastage Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × wastage rate × landed vaccine cost per dose",
+                  "children": [
+                    {
+                      "id": "eastern_private_wastage_doses_ref",
+                      "label": "Eastern Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "eastern_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "eastern_private_wastage_rate",
+                      "label": "Eastern Private Wastage Rate",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 0.05,
+                      "annualGrowth": 0,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "eastern_private_landed_ref",
+                      "label": "Landed Vaccine Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "landed_vaccine_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "northern_private_wastage_cost",
+                  "label": "Northern Private Wastage Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= administered doses × wastage rate × landed vaccine cost per dose",
+                  "children": [
+                    {
+                      "id": "northern_private_wastage_doses_ref",
+                      "label": "Northern Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "northern_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "northern_private_wastage_rate",
+                      "label": "Northern Private Wastage Rate",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 0.065,
+                      "annualGrowth": 0,
+                      "unit": "%",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "northern_private_landed_ref",
+                      "label": "Landed Vaccine Cost Per Dose",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": "landed_vaccine_cost_per_dose",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            },
+            {
+              "id": "private_trade_support_cost",
+              "label": "Private Channel Incentive Cost",
+              "category": "variable",
+              "type": "calculated",
+              "op": "+",
+              "driver": false,
+              "refOf": null,
+              "formula": "= sum of private trade support costs",
+              "children": [
+                {
+                  "id": "central_private_trade_support_cost",
+                  "label": "Central Private Channel Incentive Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": null,
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= private administered doses × private trade support per dose",
+                  "children": [
+                    {
+                      "id": "central_private_trade_doses_ref",
+                      "label": "Central Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "central_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "central_private_trade_support_per_dose",
+                      "label": "Central Private Trade Support Per Dose",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 4500,
+                      "annualGrowth": 0.03,
+                      "unit": "UGX/dose",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "western_private_trade_support_cost",
+                  "label": "Western Private Channel Incentive Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= private administered doses × private trade support per dose",
+                  "children": [
+                    {
+                      "id": "western_private_trade_doses_ref",
+                      "label": "Western Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "western_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "western_private_trade_support_per_dose",
+                      "label": "Western Private Trade Support Per Dose",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 3500,
+                      "annualGrowth": 0.03,
+                      "unit": "UGX/dose",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "eastern_private_trade_support_cost",
+                  "label": "Eastern Private Channel Incentive Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= private administered doses × private trade support per dose",
+                  "children": [
+                    {
+                      "id": "eastern_private_trade_doses_ref",
+                      "label": "Eastern Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "eastern_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "eastern_private_trade_support_per_dose",
+                      "label": "Eastern Private Trade Support Per Dose",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 2500,
+                      "annualGrowth": 0.03,
+                      "unit": "UGX/dose",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                },
+                {
+                  "id": "northern_private_trade_support_cost",
+                  "label": "Northern Private Channel Incentive Cost",
+                  "category": "variable",
+                  "type": "calculated",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "formula": "= private administered doses × private trade support per dose",
+                  "children": [
+                    {
+                      "id": "northern_private_trade_doses_ref",
+                      "label": "Northern Private Administered Doses",
+                      "category": "variable",
+                      "type": "ref",
+                      "op": null,
+                      "driver": true,
+                      "refOf": "northern_private_administered_doses",
+                      "timeBehavior": "same_month_formula",
+                      "rollForward": null
+                    },
+                    {
+                      "id": "northern_private_trade_support_per_dose",
+                      "label": "Northern Private Trade Support Per Dose",
+                      "category": "variable",
+                      "type": "input",
+                      "op": "×",
+                      "driver": false,
+                      "refOf": null,
+                      "startingValue": 1200,
+                      "annualGrowth": 0.03,
+                      "unit": "UGX/dose",
+                      "uncertain": true,
+                      "timeBehavior": "point_in_time",
+                      "rollForward": null
+                    }
+                  ],
+                  "timeBehavior": "same_month_formula",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            }
+          ],
+          "timeBehavior": "same_month_formula",
+          "rollForward": null
+        },
+        {
+          "id": "total_fixed_costs",
+          "label": "Total Fixed Costs",
+          "category": "fixed",
+          "type": "calculated",
+          "op": "+",
+          "driver": false,
+          "refOf": null,
+          "formula": "= sum of recurring launch and country overhead costs",
+          "children": [
+            {
+              "id": "regulatory_and_pharmacovigilance",
+              "label": "Regulatory and Pharmacovigilance",
+              "category": "fixed",
+              "type": "calculated",
+              "op": null,
+              "driver": false,
+              "refOf": null,
+              "formula": "= lean regulatory support",
+              "children": [
+                {
+                  "id": "regulatory_headcount",
+                  "label": "Regulatory Headcount",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": null,
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 1,
+                  "annualGrowth": 0,
+                  "unit": "FTE",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                },
+                {
+                  "id": "regulatory_cost_per_fte",
+                  "label": "Regulatory Cost Per FTE",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": "×",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 8500000,
+                  "annualGrowth": 0.05,
+                  "unit": "UGX/FTE/month",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                },
+                {
+                  "id": "regulatory_fees_and_compliance",
+                  "label": "Regulatory Fees and Compliance",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 4500000,
+                  "annualGrowth": 0.04,
+                  "unit": "UGX/month",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            },
+            {
+              "id": "market_access_and_tender_support",
+              "label": "Market Access and Tender Support",
+              "category": "fixed",
+              "type": "calculated",
+              "op": "+",
+              "driver": false,
+              "refOf": null,
+              "formula": "= lean market access team plus targeted tender support",
+              "children": [
+                {
+                  "id": "market_access_headcount",
+                  "label": "Market Access Headcount",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": null,
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 2,
+                  "annualGrowth": 0,
+                  "unit": "FTE",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                },
+                {
+                  "id": "market_access_cost_per_fte",
+                  "label": "Market Access Cost Per FTE",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": "×",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 8000000,
+                  "annualGrowth": 0.05,
+                  "unit": "UGX/FTE/month",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                },
+                {
+                  "id": "tender_support_budget",
+                  "label": "Tender Support Budget",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 5000000,
+                  "annualGrowth": 0.04,
+                  "unit": "UGX/month",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            },
+            {
+              "id": "medical_and_scientific_engagement",
+              "label": "Medical and Scientific Engagement",
+              "category": "fixed",
+              "type": "calculated",
+              "op": "+",
+              "driver": false,
+              "refOf": null,
+              "formula": "= shared medical lead plus selective external support",
+              "children": [
+                {
+                  "id": "medical_headcount",
+                  "label": "Medical Headcount",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": null,
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 1,
+                  "annualGrowth": 0,
+                  "unit": "FTE",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                },
+                {
+                  "id": "medical_cost_per_fte",
+                  "label": "Medical Cost Per FTE",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": "×",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 9500000,
+                  "annualGrowth": 0.05,
+                  "unit": "UGX/FTE/month",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                },
+                {
+                  "id": "kol_and_medical_program_budget",
+                  "label": "KOL and Medical Program Budget",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 6000000,
+                  "annualGrowth": 0.04,
+                  "unit": "UGX/month",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            },
+            {
+              "id": "provider_training_and_demand_creation",
+              "label": "Provider Training and Demand Creation",
+              "category": "fixed",
+              "type": "calculated",
+              "op": "+",
+              "driver": false,
+              "refOf": null,
+              "formula": "= lighter recurring regional training budgets",
+              "children": [
+                {
+                  "id": "central_training_budget",
+                  "label": "Central Training Budget",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": null,
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 8000000,
+                  "annualGrowth": 0.03,
+                  "unit": "UGX/month",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                },
+                {
+                  "id": "western_training_budget",
+                  "label": "Western Training Budget",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 5000000,
+                  "annualGrowth": 0.03,
+                  "unit": "UGX/month",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                },
+                {
+                  "id": "eastern_training_budget",
+                  "label": "Eastern Training Budget",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 3500000,
+                  "annualGrowth": 0.03,
+                  "unit": "UGX/month",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                },
+                {
+                  "id": "northern_training_budget",
+                  "label": "Northern Training Budget",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 3000000,
+                  "annualGrowth": 0.03,
+                  "unit": "UGX/month",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            },
+            {
+              "id": "private_channel_sales_management",
+              "label": "Private Channel Sales Management",
+              "category": "fixed",
+              "type": "calculated",
+              "op": "+",
+              "driver": false,
+              "refOf": null,
+              "formula": "= very lean private field structure",
+              "children": [
+                {
+                  "id": "private_field_rep_headcount",
+                  "label": "Private Field Rep Headcount",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": null,
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 3,
+                  "annualGrowth": 0,
+                  "unit": "FTE",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                },
+                {
+                  "id": "private_field_rep_cost_per_fte",
+                  "label": "Private Field Rep Cost Per FTE",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": "×",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 3600000,
+                  "annualGrowth": 0.05,
+                  "unit": "UGX/FTE/month",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                },
+                {
+                  "id": "private_sales_manager_cost",
+                  "label": "Private Sales Manager Cost",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 5000000,
+                  "annualGrowth": 0.05,
+                  "unit": "UGX/month",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                },
+                {
+                  "id": "private_sales_travel_budget",
+                  "label": "Private Sales Travel Budget",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 4500000,
+                  "annualGrowth": 0.04,
+                  "unit": "UGX/month",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            },
+            {
+              "id": "central_country_overhead",
+              "label": "Central Country Overhead",
+              "category": "fixed",
+              "type": "calculated",
+              "op": "+",
+              "driver": false,
+              "refOf": null,
+              "formula": "= lean office and shared admin support",
+              "children": [
+                {
+                  "id": "country_office_rent",
+                  "label": "Country Office Rent",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": null,
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 9000000,
+                  "annualGrowth": 0.04,
+                  "unit": "UGX/month",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                },
+                {
+                  "id": "utilities_and_admin",
+                  "label": "Utilities and Admin",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 4000000,
+                  "annualGrowth": 0.04,
+                  "unit": "UGX/month",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                },
+                {
+                  "id": "it_and_quality_support",
+                  "label": "IT and Quality Support",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 3000000,
+                  "annualGrowth": 0.04,
+                  "unit": "UGX/month",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            },
+            {
+              "id": "launch_and_awareness_spend",
+              "label": "Launch and Awareness Spend",
+              "category": "fixed",
+              "type": "calculated",
+              "op": "+",
+              "driver": false,
+              "refOf": null,
+              "formula": "= targeted but front-light regional launch budgets",
+              "children": [
+                {
+                  "id": "central_launch_budget",
+                  "label": "Central Launch Budget",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": null,
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 9000000,
+                  "annualGrowth": 0.03,
+                  "unit": "UGX/month",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                },
+                {
+                  "id": "western_launch_budget",
+                  "label": "Western Launch Budget",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 5000000,
+                  "annualGrowth": 0.03,
+                  "unit": "UGX/month",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                },
+                {
+                  "id": "eastern_launch_budget",
+                  "label": "Eastern Launch Budget",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 3500000,
+                  "annualGrowth": 0.03,
+                  "unit": "UGX/month",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                },
+                {
+                  "id": "northern_launch_budget",
+                  "label": "Northern Launch Budget",
+                  "category": "fixed",
+                  "type": "input",
+                  "op": "+",
+                  "driver": false,
+                  "refOf": null,
+                  "startingValue": 2500000,
+                  "annualGrowth": 0.03,
+                  "unit": "UGX/month",
+                  "uncertain": true,
+                  "timeBehavior": "point_in_time",
+                  "rollForward": null
+                }
+              ],
+              "timeBehavior": "same_month_formula",
+              "rollForward": null
+            }
+          ],
+          "timeBehavior": "same_month_formula",
+          "rollForward": null
+        }
+      ],
+      "timeBehavior": "same_month_formula",
+      "rollForward": null
+    }
+  ],
+  "timeBehavior": "same_month_formula",
+  "rollForward": null
+};
+const colors = { profit:"#c8f542", revenue:"#42d4f5", variable:"#f5a742", fixed:"#f54242" };
+const refMap = new Map();
+function index(node) { refMap.set(node.id, node); (node.children || []).forEach(index); }
+index(data);
+const collapsed = new Set();
+function detailFor(node) {
+  if (node.type === "input") {
+    const g = node.annualGrowth ? ", +" + (node.annualGrowth * 100).toFixed(1) + "% p.a." : "";
+    return "= " + node.startingValue + " " + node.unit + g;
+  }
+  if (node.type === "ref") {
+    const m = refMap.get(node.refOf); return "= ↑ " + (m ? m.label : node.refOf);
+  }
+  if (node.timeBehavior === "stateful_roll_forward" && node.rollForward) {
+    return "Month1 " + node.rollForward.month1Value + "; " + node.rollForward.monthlyFormula;
+  }
+  return node.formula || "";
+}
+function render(node, depth=0, isLast=true, lineage=[]) {
+  const tree = document.getElementById("tree");
+  const row = document.createElement("div");
+  row.className = "row " + (node.type === "ref" ? "ref" : "");
+  const bar = document.createElement("span"); bar.className = "bar"; bar.style.background = colors[node.category] || "#999"; row.appendChild(bar);
+  const connector = document.createElement("span"); connector.className = "connector"; connector.textContent = depth === 0 ? "" : lineage.map(last => last ? "   " : "│  ").join("") + (isLast ? "└─" : "├─"); row.appendChild(connector);
+  const op = document.createElement("span"); op.className = "op"; op.textContent = node.op || ""; row.appendChild(op);
+  const toggle = document.createElement("span"); toggle.className = node.children && node.children.length ? "toggle" : "toggle empty"; toggle.textContent = node.children && node.children.length ? (collapsed.has(node.id) ? "▸" : "▾") : "•"; row.appendChild(toggle);
+  const label = document.createElement("span"); label.className = "label"; label.textContent = node.label; row.appendChild(label);
+  const tags = document.createElement("span"); tags.className = "tags";
+  if (node.type === "input") { const t=document.createElement("span"); t.className="tag"; t.textContent="[INPUT]"; tags.appendChild(t); }
+  if (node.type === "ref") { const t=document.createElement("span"); t.className="tag"; t.textContent="[REF]"; tags.appendChild(t); }
+  if (node.driver) { const t=document.createElement("span"); t.className="tag"; t.textContent="[DRIVER]"; tags.appendChild(t); }
+  if (node.uncertain) { const t=document.createElement("span"); t.className="tag warn"; t.textContent="[?]"; tags.appendChild(t); }
+  if (node.timeBehavior === "stateful_roll_forward") { const t=document.createElement("span"); t.className="tag"; t.textContent="[STATEFUL]"; tags.appendChild(t); }
+  row.appendChild(tags);
+  const detail = document.createElement("span"); detail.className = "detail"; detail.textContent = detailFor(node); row.appendChild(detail);
+  if (node.note) { const note = document.createElement("span"); note.className = "note"; note.textContent = "(" + node.note + ")"; row.appendChild(note); }
+  if (node.children && node.children.length) row.addEventListener("click", () => { collapsed.has(node.id) ? collapsed.delete(node.id) : collapsed.add(node.id); draw(); });
+  tree.appendChild(row);
+  if (!collapsed.has(node.id) && node.children && node.children.length) node.children.forEach((child, idx) => render(child, depth + 1, idx === node.children.length - 1, lineage.concat(isLast)));
+}
+function draw() { document.getElementById("tree").innerHTML = ""; render(data); }
+draw();
+</script>
+</body>
+</html>
