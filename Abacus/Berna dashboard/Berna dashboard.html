@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abacus Group — HR Command Centre</title>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<style>
+  :root {
+    --bg:#0a1628;--surface:#111d30;--card:#162440;--border:#1e3560;
+    --gold:#c9a84c;--gold2:#e8c76a;--white:#f0f4f8;--muted:#7a9cc2;--dim:#4a6785;
+    --blue:#4fc3f7;--green:#66bb6a;--red:#ef5350;--orange:#ffa726;
+    --pink:#ec407a;--purple:#ab47bc;--teal:#26c6da;
+    --font:'Segoe UI',system-ui,-apple-system,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--white);font-family:var(--font);min-height:100vh;overflow-x:hidden;}
+
+  /* DROP ZONE */
+  #drop-zone{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:24px;background:radial-gradient(ellipse at 50% 40%,#162440 0%,#0a1628 70%);}
+  #drop-zone .logo{font-size:13px;font-weight:700;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:8px;}
+  #drop-zone h1{font-size:42px;font-weight:700;color:#fff;text-align:center;line-height:1.2;}
+  #drop-zone h1 span{color:var(--gold);}
+  #drop-zone>p{color:var(--muted);font-size:16px;text-align:center;max-width:480px;}
+  #drop-area{width:520px;max-width:90vw;border:2px dashed var(--border);border-radius:16px;padding:56px 40px;text-align:center;cursor:pointer;transition:all 0.3s;background:var(--surface);position:relative;}
+  #drop-area:hover,#drop-area.drag-over{border-color:var(--gold);background:rgba(201,168,76,0.05);transform:translateY(-2px);box-shadow:0 16px 48px rgba(201,168,76,0.12);}
+  #drop-area .icon{font-size:56px;margin-bottom:16px;display:block;}
+  #drop-area h3{font-size:20px;margin-bottom:8px;color:#fff;}
+  #drop-area p{font-size:14px;color:var(--muted);margin-bottom:20px;}
+  #file-input{display:none;}
+  .btn-upload{display:inline-block;background:var(--gold);color:#0a1628;font-weight:700;font-size:14px;letter-spacing:1px;padding:12px 28px;border-radius:8px;border:none;cursor:pointer;transition:all 0.2s;text-transform:uppercase;}
+  .btn-upload:hover{background:var(--gold2);transform:translateY(-1px);}
+  #loading{display:none;flex-direction:column;align-items:center;gap:16px;color:var(--muted);font-size:15px;}
+  .spinner{width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* DASHBOARD */
+  #dashboard{display:none;flex-direction:column;min-height:100vh;}
+  .header{background:var(--card);border-bottom:2px solid var(--gold);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:68px;position:sticky;top:0;z-index:100;box-shadow:0 4px 24px rgba(0,0,0,0.4);}
+  .header-left{display:flex;align-items:center;gap:20px;}
+  .logo-text{font-size:11px;font-weight:700;letter-spacing:4px;color:var(--gold);text-transform:uppercase;}
+  .divider-v{width:1px;height:32px;background:var(--border);}
+  .header-title{font-size:20px;font-weight:700;color:#fff;}
+  .header-right{display:flex;align-items:center;gap:20px;}
+  .report-badge{background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);border-radius:6px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--gold);letter-spacing:0.5px;}
+  .last-updated{font-size:12px;color:var(--dim);}
+  .btn-reload{background:var(--surface);border:1px solid var(--border);color:var(--muted);font-size:12px;padding:7px 14px;border-radius:6px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px;}
+  .btn-reload:hover{border-color:var(--gold);color:var(--gold);}
+  .main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;}
+
+  /* KPI */
+  .kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+  .kpi-grid2{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+  .kpi-card{background:var(--card);border-radius:12px;padding:20px 18px;border-top:3px solid var(--gold);position:relative;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;}
+  .kpi-card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.3);}
+  .kpi-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+  .kpi-value{font-size:32px;font-weight:800;line-height:1;margin-bottom:8px;}
+  .kpi-sub{font-size:11px;color:var(--dim);display:flex;align-items:center;gap:4px;}
+  .kpi-delta{font-size:11px;font-weight:600;padding:2px 6px;border-radius:4px;}
+  .kpi-delta.up{background:rgba(102,187,106,0.15);color:var(--green);}
+  .kpi-delta.down{background:rgba(239,83,80,0.15);color:var(--red);}
+
+  /* LAYOUT */
+  .section-header{display:flex;align-items:center;gap:12px;margin-bottom:-4px;}
+  .section-header h2{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);}
+  .section-line{flex:1;height:1px;background:var(--border);}
+  .chart-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .chart-grid-3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;}
+  .chart-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .chart-grid-custom{display:grid;grid-template-columns:3fr 2fr;gap:16px;}
+  .chart-card{background:var(--surface);border-radius:12px;padding:20px;border:1px solid var(--border);display:flex;flex-direction:column;gap:14px;}
+  .chart-card.highlight{border-color:rgba(201,168,76,0.3);}
+  .chart-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--white);display:flex;align-items:center;justify-content:space-between;}
+  .chart-title .badge{font-size:10px;padding:3px 8px;border-radius:4px;background:rgba(201,168,76,0.12);color:var(--gold);letter-spacing:0;font-weight:600;}
+  .chart-wrap{position:relative;flex:1;min-height:0;}
+  .chart-wrap canvas{width:100%!important;}
+
+  /* STATS */
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .stat-item{background:var(--card);border-radius:8px;padding:12px 14px;border-left:3px solid currentColor;}
+  .stat-item .s-label{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+  .stat-item .s-value{font-size:22px;font-weight:800;line-height:1;}
+  .stat-item .s-sub{font-size:10px;color:var(--dim);margin-top:4px;}
+
+  /* PROGRESS */
+  .progress-list{display:flex;flex-direction:column;gap:10px;}
+  .progress-item{display:flex;flex-direction:column;gap:4px;}
+  .progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);}
+  .progress-label span:last-child{font-weight:700;color:var(--white);}
+  .progress-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+  .progress-fill{height:100%;border-radius:3px;transition:width 1s ease;}
+
+  /* FOOTER */
+  .footer{margin-top:8px;padding:16px 32px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--dim);}
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar{width:6px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+  ::-webkit-scrollbar-thumb:hover{background:var(--gold);}
+
+  /* RESPONSIVE */
+  @media(max-width:960px){
+    .kpi-grid{grid-template-columns:repeat(3,1fr);}
+    .chart-grid-2,.chart-grid-3,.chart-grid-custom{grid-template-columns:1fr;}
+    .main{padding:16px;}
+  }
+
+  /* ANIMATION */
+  .slide-up{animation:slideUp 0.4s ease forwards;opacity:0;transform:translateY(16px);}
+  @keyframes slideUp{to{opacity:1;transform:none;}}
+</style>
+</head>
+<body>
+
+<!-- UPLOAD SCREEN -->
+<div id="drop-zone">
+  <div>
+    <div class="logo">Abacus Group</div>
+    <h1>HR <span>Command Centre</span></h1>
+  </div>
+  <p>Upload the Group Dashboard HR Report Excel file and your live dashboard will appear instantly.</p>
+  <div id="drop-area">
+    <span class="icon">📊</span>
+    <h3>Drop your Excel file here</h3>
+    <p>Group Dashboard HR Report FY25 (.xlsx)</p>
+    <input type="file" id="file-input" accept=".xlsx,.xls">
+    <label for="file-input" class="btn-upload">Choose File</label>
+  </div>
+  <div id="loading">
+    <div class="spinner"></div>
+    <span id="loading-msg">Parsing Excel data…</span>
+  </div>
+</div>
+
+<!-- DRILL-DOWN MODAL -->
+<div id="drill-modal" style="display:none;position:fixed;inset:0;background:rgba(5,12,25,0.85);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(3px);">
+  <div style="background:#111d30;border:1px solid #1e3560;border-radius:16px;padding:28px 28px 20px;width:660px;max-width:93vw;position:relative;box-shadow:0 24px 64px rgba(0,0,0,0.6);">
+    <button onclick="closeDrill()" style="position:absolute;top:14px;right:18px;background:none;border:none;color:#4a6785;font-size:22px;cursor:pointer;line-height:1;" title="Close">✕</button>
+    <div id="drill-title" style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#c9a84c;margin-bottom:18px;"></div>
+    <div style="position:relative;height:240px;"><canvas id="drill-canvas"></canvas></div>
+    <div id="drill-stats" style="margin-top:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="header">
+    <div class="header-left">
+      <span class="logo-text">Abacus Group</span>
+      <div class="divider-v"></div>
+      <span class="header-title">HR Command Centre</span>
+    </div>
+    <div class="header-right">
+      <span class="report-badge" id="report-period">FY 2025</span>
+      <span class="last-updated" id="last-updated"></span>
+      <button class="btn-reload" onclick="document.getElementById('file-input2').click()">⟳ Load New File</button>
+      <input type="file" id="file-input2" accept=".xlsx,.xls" style="display:none">
+    </div>
+  </div>
+
+  <div class="main">
+    <div id="kpi-grid" class="kpi-grid"></div>
+    <div id="kpi-grid2" class="kpi-grid2" style="margin-top:0"></div>
+
+    <div class="section-header"><h2>MPC / BTO Ratio</h2><div class="section-line"></div></div>
+    <div class="chart-grid-custom">
+      <div class="chart-card highlight">
+        <div class="chart-title">MPC/BTO — Budget vs Actual vs FY24 <span class="badge">Group · Monthly</span></div>
+        <div class="chart-wrap" style="height:200px"><canvas id="mpcTrendChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">MPC/BTO by Business Unit <span class="badge">Latest Month</span></div>
+        <div class="chart-wrap" style="height:200px"><canvas id="mpcBuChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="section-header"><h2>Workforce Overview</h2><div class="section-line"></div></div>
+    <div class="chart-grid-3">
+      <div class="chart-card highlight" style="grid-column:span 2">
+        <div class="chart-title">Monthly Headcount Trend <span class="badge">FY25</span></div>
+        <div class="chart-wrap" style="height:220px"><canvas id="trendChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Headcount by Country <span class="badge">Latest Month</span></div>
+        <div class="chart-wrap" style="height:100px"><canvas id="countryChart"></canvas></div>
+        <div class="chart-title" style="margin-top:8px">Staffing Mix <span class="badge">Latest Month</span></div>
+        <div class="chart-wrap" style="height:90px"><canvas id="staffMixChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="section-header"><h2>Demographics &amp; Retention</h2><div class="section-line"></div></div>
+    <div class="chart-grid-3">
+      <div class="chart-card">
+        <div class="chart-title">Gender by Country <span class="badge">Direct Staff</span></div>
+        <div class="chart-wrap" style="height:200px"><canvas id="genderChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Monthly Turnover Rate <span class="badge">Regrettable</span></div>
+        <div class="chart-wrap" style="height:200px"><canvas id="turnoverMonthChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Workforce Profile</div>
+        <div id="workforce-profile"></div>
+      </div>
+    </div>
+
+    <div class="section-header"><h2>Recruitment &amp; Movement</h2><div class="section-line"></div></div>
+    <div class="chart-grid-2">
+      <div class="chart-card">
+        <div class="chart-title">Recruitment — Planned vs Actual <span class="badge">FY25 YTD</span></div>
+        <div class="chart-wrap" style="height:200px"><canvas id="recruitChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Monthly Hires, Exits &amp; Movements <span class="badge">FY25</span></div>
+        <div class="chart-wrap" style="height:200px"><canvas id="hireExitChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="section-header"><h2>Learning, Discipline &amp; Wellbeing</h2><div class="section-line"></div></div>
+    <div class="chart-grid-4">
+      <div class="chart-card" style="grid-column:span 2">
+        <div class="chart-title">Training Man-Hours by Country <span class="badge">FY25 YTD</span></div>
+        <div class="chart-wrap" style="height:180px"><canvas id="trainingChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Disciplinary Cases</div>
+        <div id="disc-panel"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">PMS Compliance by Department</div>
+        <div class="chart-wrap" style="height:160px"><canvas id="pmsDeptChart"></canvas></div>
+        <div id="wellbeing-panel"></div>
+      </div>
+    </div>
+
+    <div class="section-header"><h2>Turnover Analysis &amp; Expatriate Tracker</h2><div class="section-line"></div></div>
+    <div class="chart-grid-2">
+      <div class="chart-card">
+        <div class="chart-title">YTD Turnover Rate by Business Unit <span class="badge">Regrettable</span></div>
+        <div id="turnover-bu-panel" class="progress-list"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Expatriate Distribution by Country</div>
+        <div class="chart-wrap" style="height:200px"><canvas id="expatChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+    <div class="section-header"><h2>AI Insights</h2><div class="section-line"></div></div>
+    <div class="chart-card" style="border-color:rgba(201,168,76,0.25);gap:0">
+      <div class="chart-title" style="margin-bottom:12px">
+        HR Intelligence
+        <span class="badge" style="background:linear-gradient(135deg,rgba(201,168,76,0.2),rgba(201,168,76,0.08));border:1px solid rgba(201,168,76,0.4)">✦ Claude AI</span>
+      </div>
+      <div id="ai-key-row" style="display:flex;gap:10px;align-items:center">
+        <input id="ai-api-key" type="password" placeholder="Paste your Anthropic API key to generate AI insights…"
+          style="flex:1;background:#0a1628;border:1px solid #1e3560;color:#f0f4f8;padding:10px 14px;border-radius:8px;font-size:13px;outline:none;font-family:var(--font)"
+          onkeydown="if(event.key==='Enter')generateInsights()">
+        <button id="ai-gen-btn" onclick="generateInsights()"
+          style="background:#c9a84c;color:#0a1628;font-weight:700;font-size:12px;letter-spacing:0.5px;padding:10px 22px;border:none;border-radius:8px;cursor:pointer;white-space:nowrap;transition:all 0.2s;font-family:var(--font)"
+          onmouseover="this.style.background='#e8c76a'" onmouseout="this.style.background='#c9a84c'">Generate Insights</button>
+      </div>
+      <div id="ai-output" style="display:none;margin-top:20px;font-size:13px;line-height:1.75;color:#e0e8f0;border-top:1px solid #1e3560;padding-top:18px"></div>
+    </div>
+
+  <div class="footer">
+    <span>⚙ Live data · Monthly Headcount · Turnover · Training · Disciplinary · Performance Management · Recruitment · Wellbeing</span>
+    <span id="footer-ts"></span>
+  </div>
+</div>
+
+<script>
+// ── GLOBAL DATA STORE (for drill-down access) ─────────────
+let _D=null;
+
+// ── DRILL-DOWN ENGINE ──────────────────────────────────────
+let _drillChart=null;
+function openDrill(title,buildFn){
+  document.getElementById('drill-title').textContent=title;
+  document.getElementById('drill-modal').style.display='flex';
+  if(_drillChart){_drillChart.destroy();_drillChart=null;}
+  document.getElementById('drill-stats').innerHTML='';
+  buildFn(document.getElementById('drill-canvas'),document.getElementById('drill-stats'));
+}
+function closeDrill(){
+  document.getElementById('drill-modal').style.display='none';
+  if(_drillChart){_drillChart.destroy();_drillChart=null;}
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrill();});
+
+function drillCountry(country){
+  const d=_D;
+  openDrill('Headcount Trend — '+country,(canvas,stats)=>{
+    _drillChart=new Chart(canvas.getContext('2d'),{
+      type:'line',
+      data:{
+        labels:d.monthData.map(m=>m.label),
+        datasets:[
+          {label:'Overall HC',data:d.monthData.map(m=>m.byCountry[country]||0),borderColor:BU_COL[country]||C.gold,backgroundColor:'rgba(201,168,76,0.08)',fill:true,tension:0.4,borderWidth:2.5,pointRadius:3,datalabels:{display:false}},
+          {label:'Direct Staff',data:d.monthData.map(m=>m.directByCountry[country]||0),borderColor:C.blue,borderDash:[4,2],borderWidth:2,tension:0.4,pointRadius:3,fill:false,datalabels:{display:false}},
+        ]
+      },
+      options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+        plugins:{legend:{position:'top',labels:{color:'#7a9cc2',boxWidth:12,font:{size:10}}},tooltip:{backgroundColor:'#111d30',borderColor:'#1e3560',borderWidth:1},datalabels:{display:false}},
+        scales:{x:darkGrid(),y:{...darkGrid(),beginAtZero:false}}}
+    });
+    const l=d.latest,dir=l.directByCountry[country]||0,fem=l.femaleByCountry[country]||0,exp=l.expatByCountry[country]||0;
+    stats.innerHTML=`
+      <div class="stat-item" style="color:${BU_COL[country]||C.gold}"><div class="s-label">Total HC</div><div class="s-value" style="color:${BU_COL[country]||C.gold};font-size:20px">${(l.byCountry[country]||0).toLocaleString()}</div><div class="s-sub">Latest month</div></div>
+      <div class="stat-item" style="color:${C.pink}"><div class="s-label">Female</div><div class="s-value" style="color:${C.pink};font-size:20px">${dir>0?Math.round(fem/dir*100):0}%</div><div class="s-sub">${fem} of ${dir} direct</div></div>
+      <div class="stat-item" style="color:${C.orange}"><div class="s-label">Expatriates</div><div class="s-value" style="color:${C.orange};font-size:20px">${exp}</div><div class="s-sub">${dir>0?Math.round(exp/dir*100):0}% of direct</div></div>`;
+  });
+}
+
+function drillBUTurnover(bu){
+  const d=_D;
+  openDrill('Monthly Turnover — '+bu,(canvas,stats)=>{
+    const months=d.turnoverMonthly.map(m=>m.month);
+    const rates=d.turnoverMonthly.map(m=>+((m[bu]||0)*100).toFixed(2));
+    const grp=d.turnoverMonthly.map(m=>+(m.groupRate*100).toFixed(2));
+    _drillChart=new Chart(canvas.getContext('2d'),{
+      type:'line',
+      data:{labels:months,datasets:[
+        {label:bu,data:rates,borderColor:BU_COL[bu]||C.gold,backgroundColor:(BU_COL[bu]||C.gold)+'18',fill:true,tension:0.4,borderWidth:2.5,pointRadius:4,datalabels:{display:false}},
+        {label:'Group avg',data:grp,borderColor:C.muted,borderDash:[3,3],borderWidth:1.5,pointRadius:2,fill:false,datalabels:{display:false}},
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+        plugins:{legend:{position:'top',labels:{color:'#7a9cc2',boxWidth:12,font:{size:10}}},tooltip:{backgroundColor:'#111d30',borderColor:'#1e3560',borderWidth:1,callbacks:{label:c=>c.dataset.label+': '+c.parsed.y.toFixed(2)+'%'}},datalabels:{display:false}},
+        scales:{x:darkGrid(),y:{...darkGrid(),ticks:{callback:v=>v+'%'}}}}
+    });
+    const buRate=d.buTurnoverRates[bu]||0,grpRate=d.ytdTurnoverGroup||0;
+    const diff=((buRate-grpRate)*100).toFixed(1);
+    const best=Math.min(...rates.filter(r=>r>0)),worst=Math.max(...rates);
+    stats.innerHTML=`
+      <div class="stat-item" style="color:${BU_COL[bu]||C.gold}"><div class="s-label">YTD Rate</div><div class="s-value" style="color:${BU_COL[bu]||C.gold};font-size:20px">${(buRate*100).toFixed(1)}%</div><div class="s-sub">Regrettable exits</div></div>
+      <div class="stat-item" style="color:${C.green}"><div class="s-label">Best Month</div><div class="s-value" style="color:${C.green};font-size:20px">${best.toFixed(2)}%</div><div class="s-sub">Lowest monthly rate</div></div>
+      <div class="stat-item" style="color:${parseFloat(diff)>0?C.red:C.green}"><div class="s-label">vs Group</div><div class="s-value" style="color:${parseFloat(diff)>0?C.red:C.green};font-size:20px">${parseFloat(diff)>0?'+':''}${diff}%</div><div class="s-sub">${parseFloat(diff)>0?'Above':'Below'} group avg</div></div>`;
+  });
+}
+
+function drillBUMpc(bu){
+  const d=_D;
+  openDrill('MPC/BTO Monthly — '+bu,(canvas,stats)=>{
+    const months=d.mpcMonthly.map(m=>m.month);
+    const actuals=d.mpcMonthly.map(m=>+((m.buActual[bu]||0)*100).toFixed(1));
+    const budgets=d.mpcMonthly.map(m=>+((m.buBudget[bu]||0)*100).toFixed(1));
+    _drillChart=new Chart(canvas.getContext('2d'),{
+      type:'line',
+      data:{labels:months,datasets:[
+        {label:'Actual',data:actuals,borderColor:BU_COL[bu]||C.gold,backgroundColor:(BU_COL[bu]||C.gold)+'18',fill:true,tension:0.3,borderWidth:2.5,pointRadius:4,datalabels:{display:false}},
+        {label:'Budget',data:budgets,borderColor:C.muted,borderDash:[4,2],borderWidth:1.5,pointRadius:2,fill:false,datalabels:{display:false}},
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+        plugins:{legend:{position:'top',labels:{color:'#7a9cc2',boxWidth:12,font:{size:10}}},tooltip:{backgroundColor:'#111d30',borderColor:'#1e3560',borderWidth:1,callbacks:{label:c=>c.dataset.label+': '+c.parsed.y.toFixed(1)+'%'}},datalabels:{display:false}},
+        scales:{x:darkGrid(),y:{...darkGrid(),ticks:{callback:v=>v+'%'}}}}
+    });
+    const act=d.mpcLatestBUActual[bu]||0,bud=d.mpcLatestBUBudget[bu]||0;
+    const variance=bud>0?((act-bud)/bud*100).toFixed(1):0;
+    stats.innerHTML=`
+      <div class="stat-item" style="color:${BU_COL[bu]||C.gold}"><div class="s-label">Latest Actual</div><div class="s-value" style="color:${BU_COL[bu]||C.gold};font-size:20px">${(act*100).toFixed(1)}%</div><div class="s-sub">MPC / BTO</div></div>
+      <div class="stat-item" style="color:${C.muted}"><div class="s-label">Budget</div><div class="s-value" style="color:${C.muted};font-size:20px">${(bud*100).toFixed(1)}%</div><div class="s-sub">Target ratio</div></div>
+      <div class="stat-item" style="color:${parseFloat(variance)>0?C.red:C.green}"><div class="s-label">Variance</div><div class="s-value" style="color:${parseFloat(variance)>0?C.red:C.green};font-size:20px">${parseFloat(variance)>0?'+':''}${variance}%</div><div class="s-sub">${parseFloat(variance)>0?'Over budget':'Under budget'}</div></div>`;
+  });
+}
+
+function drillBURecruit(bu){
+  const d=_D;
+  openDrill('Recruitment Detail — '+bu,(canvas,stats)=>{
+    const bud=d.recruitByBU[bu]||{planned:0,actual:0};
+    const pending=Math.max(0,bud.planned-bud.actual);
+    _drillChart=new Chart(canvas.getContext('2d'),{
+      type:'bar',
+      data:{labels:['Planned','Filled','Pending'],
+        datasets:[{data:[bud.planned,bud.actual,pending],backgroundColor:[C.muted,C.green,C.orange],borderRadius:8}]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{backgroundColor:'#111d30',borderColor:'#1e3560',borderWidth:1},datalabels:{anchor:'end',align:'end',color:'#f0f4f8',font:{size:13,weight:'bold'},formatter:v=>v||''}},
+        scales:{x:darkGrid(),y:{...darkGrid(),beginAtZero:true,ticks:{stepSize:1}}}}
+    });
+    const fillRate=bud.planned>0?Math.round(bud.actual/bud.planned*100):0;
+    stats.innerHTML=`
+      <div class="stat-item" style="color:${BU_COL[bu]||C.gold}"><div class="s-label">Planned</div><div class="s-value" style="color:${BU_COL[bu]||C.gold};font-size:20px">${bud.planned}</div><div class="s-sub">Budgeted hires</div></div>
+      <div class="stat-item" style="color:${C.green}"><div class="s-label">Fill Rate</div><div class="s-value" style="color:${C.green};font-size:20px">${fillRate}%</div><div class="s-sub">${bud.actual} of ${bud.planned} filled</div></div>
+      <div class="stat-item" style="color:${C.orange}"><div class="s-label">Pending</div><div class="s-value" style="color:${C.orange};font-size:20px">${pending}</div><div class="s-sub">Positions to fill</div></div>`;
+  });
+}
+
+// ── CHART.JS GLOBAL ────────────────────────────────────────
+Chart.register(ChartDataLabels);
+Chart.defaults.color='#7a9cc2';
+Chart.defaults.font.family="'Segoe UI',system-ui,sans-serif";
+Chart.defaults.font.size=11;
+
+const C={
+  gold:'#c9a84c',blue:'#4fc3f7',green:'#66bb6a',red:'#ef5350',
+  orange:'#ffa726',pink:'#ec407a',purple:'#ab47bc',teal:'#26c6da',muted:'#4a6785'
+};
+const BU_COL={Uganda:'#c9a84c',APDL:'#4fc3f7',Tanzania:'#66bb6a',Rwanda:'#ec407a',Burundi:'#ffa726',Kenya:'#ab47bc'};
+const charts={};
+
+function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+
+function darkGrid(){
+  return{
+    grid:{color:'rgba(30,53,96,0.5)',drawBorder:false},
+    ticks:{color:'#7a9cc2',font:{size:10}},
+    border:{color:'transparent'}
+  };
+}
+
+// ── FILE HANDLING ────────────────────────────────────────
+['file-input','file-input2'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.addEventListener('change',e=>{if(e.target.files[0]) processFile(e.target.files[0]);});
+});
+const da=document.getElementById('drop-area');
+if(da){
+  ['dragenter','dragover'].forEach(e=>da.addEventListener(e,ev=>{ev.preventDefault();da.classList.add('drag-over');}));
+  ['dragleave','drop'].forEach(e=>da.addEventListener(e,ev=>{ev.preventDefault();da.classList.remove('drag-over');}));
+  da.addEventListener('drop',ev=>{const f=ev.dataTransfer.files[0];if(f)processFile(f);});
+}
+
+function processFile(file){
+  document.getElementById('loading').style.display='flex';
+  document.getElementById('drop-area').style.display='none';
+  document.getElementById('loading-msg').textContent='Parsing Excel data…';
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array',cellNF:true});
+      const data=extractData(wb);
+      renderDashboard(data,file.name);
+    }catch(err){
+      console.error(err);
+      alert('Error parsing file: '+err.message);
+      document.getElementById('loading').style.display='none';
+      document.getElementById('drop-area').style.display='block';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ── DATA EXTRACTION ────────────────────────────────────────
+function s2a(wb,name){
+  const ws=wb.Sheets[name];
+  if(!ws) return[];
+  return XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:true});
+}
+function num(v){const n=parseFloat(v);return isNaN(n)?0:n;}
+
+function extractData(wb){
+  const mhA=s2a(wb,'Monthly Headcount');
+  const tnA=s2a(wb,'Turnover');
+  const qrA=s2a(wb,'Quarterly Recruitment Summary');
+  const trA=s2a(wb,'Training Report');
+  const dA =s2a(wb,'Disciplinary Report');
+  const wA =s2a(wb,'Employee Wellbeing');
+  const pA =s2a(wb,'Performance Management');
+  const mpA=s2a(wb,'MPC to BTO Ratio');
+
+  // ── Monthly Headcount blocks ──
+  const monthData=[];
+  const monthRows=[];
+  for(let i=0;i<mhA.length;i++){
+    const a=mhA[i][0],b=String(mhA[i][1]||'').trim();
+    const isDateVal=(typeof a==='number'&&a>40000)||(a instanceof Date);
+    if(isDateVal&&b.toLowerCase().includes('overall headcount')) monthRows.push(i);
+  }
+
+  const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  for(let mi=0;mi<monthRows.length;mi++){
+    const base=monthRows[mi];
+    const label=MO[mi]||('M'+(mi+1));
+    const gc=2,ug=4,ap=6,tz=8,rw=10,bu=12,ke=14;
+
+    const getRow=txt=>{
+      for(let k=0;k<32;k++){
+        const r=mhA[base+k]||[];
+        if(String(r[1]||'').trim().toLowerCase().includes(txt.toLowerCase())) return r;
+      }
+      return[];
+    };
+
+    // Female: first occurrence under Direct Staff block
+    let fRowDS=[],fCnt=0;
+    for(let k=0;k<32;k++){
+      const r=mhA[base+k]||[];
+      if(String(r[1]||'').trim()==='Female'){fCnt++;if(fCnt===1)fRowDS=r;}
+    }
+
+    const oh=getRow('Overall Headcount');
+    const ds=getRow('Direct Staff');
+    const nat=getRow('Nationals');
+    const exp=getRow('Expatriates');
+    const mg=getRow('Management');
+    const fmg=getRow('Female in Management');
+    const hi=getRow('Total New hires');
+    const ex=getRow('Total Exits');
+    const b40=getRow('Below 40');
+    const t5=getRow('Atleast 5');
+
+    const pr=getRow('Promotions');
+    const tr=getRow('Transfers');
+    const pc=getRow('Principals');
+    const ca=getRow('Casuals');
+    monthData.push({
+      label,
+      overallHC:num(oh[gc]),directStaff:num(ds[gc]),
+      female:num(fRowDS[gc]),nationals:num(nat[gc]),expats:num(exp[gc]),
+      management:num(mg[gc]),femaleMgmt:num(fmg[gc]),
+      newHires:num(hi[gc]),exits:num(ex[gc]),
+      promotions:num(pr[gc]),transfers:num(tr[gc]),
+      below40:num(b40[gc]),tenure5plus:num(t5[gc]),
+      principals:num(pc[gc]),casuals:num(ca[gc]),
+      byCountry:{Uganda:num(oh[ug]),APDL:num(oh[ap]),Tanzania:num(oh[tz]),Rwanda:num(oh[rw]),Burundi:num(oh[bu]),Kenya:num(oh[ke])},
+      directByCountry:{Uganda:num(ds[ug]),APDL:num(ds[ap]),Tanzania:num(ds[tz]),Rwanda:num(ds[rw]),Burundi:num(ds[bu]),Kenya:num(ds[ke])},
+      femaleByCountry:{Uganda:num(fRowDS[ug]),APDL:num(fRowDS[ap]),Tanzania:num(fRowDS[tz]),Rwanda:num(fRowDS[rw]),Burundi:num(fRowDS[bu]),Kenya:num(fRowDS[ke])},
+      expatByCountry:{Uganda:num(exp[ug]),APDL:num(exp[ap]),Tanzania:num(exp[tz]),Rwanda:num(exp[rw]),Burundi:num(exp[bu]),Kenya:num(exp[ke])},
+    });
+  }
+
+  const latest=monthData[monthData.length-1]||{};
+  const prev=monthData[monthData.length-2]||{};
+
+  // ── Turnover ──
+  const turnoverMonthly=[];
+  const MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  for(let i=0;i<tnA.length;i++){
+    const b=String(tnA[i][1]||'').trim();
+    if(MON.includes(b)) turnoverMonthly.push({month:b.slice(0,3),groupRate:num(tnA[i][4]),Uganda:num(tnA[i][7]),APDL:num(tnA[i][10]),Tanzania:num(tnA[i][13]),Rwanda:num(tnA[i][16]),Burundi:num(tnA[i][19]),Kenya:num(tnA[i][22])});
+  }
+  let ytdTurnRow=[];
+  for(let i=0;i<tnA.length;i++){
+    if(String(tnA[i][1]||'').toLowerCase().includes('ytd turnover')){ytdTurnRow=tnA[i];break;}
+  }
+  const ytdTurnoverGroup=num(ytdTurnRow[4]);
+  // Turnover sheet columns per BU: HC, Exits, Rate (groups of 3 starting at index 5)
+  // Group: [2]=HC [3]=Exits [4]=Rate; Uganda: [5]=HC [6]=Exits [7]=Rate; APDL: [8] [9] [10]; etc.
+  const buTurnoverRates={
+    Uganda:num(ytdTurnRow[7]),APDL:num(ytdTurnRow[10]),Tanzania:num(ytdTurnRow[13]),
+    Rwanda:num(ytdTurnRow[16]),Burundi:num(ytdTurnRow[19]),Kenya:num(ytdTurnRow[22])
+  };
+
+  // ── Recruitment ──
+  // Sheet has sections: "Summary Planned/Budgeted..." and "Summary Unplanned/Unbudgeted..."
+  // Each section has BU rows (Uganda, APDL, etc.) and a Group total row.
+  const BUs=['Uganda','APDL','Tanzania','Rwanda','Kenya','Burundi'];
+  let ytdPlanned=0,ytdUnplanned=0,ytdActual=0;
+  const recruitByBU={};BUs.forEach(b=>recruitByBU[b]={planned:0,actual:0});
+  let inPlannedSec=false,inUnplannedSec=false;
+
+  for(let i=0;i<qrA.length;i++){
+    const t=String(qrA[i][1]||'').trim();
+    const tl=t.toLowerCase();
+    if(tl.includes('summary')&&tl.includes('planned')&&tl.includes('budgeted')){inPlannedSec=true;inUnplannedSec=false;continue;}
+    if(tl.includes('summary')&&(tl.includes('unplanned')||tl.includes('unbudgeted'))){inPlannedSec=false;inUnplannedSec=true;continue;}
+    if(inPlannedSec&&BUs.includes(t)){recruitByBU[t].planned+=num(qrA[i][2]);recruitByBU[t].actual+=num(qrA[i][3]);}
+    if(inPlannedSec&&t==='Group'){ytdPlanned+=num(qrA[i][2]);ytdActual+=num(qrA[i][3]);}
+    if(inUnplannedSec&&t==='Group'){ytdUnplanned+=num(qrA[i][2]);}
+  }
+
+  // ── Training ── (sum all monthly rows for YTD)
+  let trainGroup=0,trainUganda=0,trainAPDL=0,trainTanzania=0,trainRwanda=0,trainBurundi=0,trainKenya=0,trainCost=0,trainPrograms=0;
+  for(let i=0;i<trA.length;i++){
+    const r=trA[i];
+    const lbl=String(r[1]||'').toLowerCase();
+    if(lbl.includes('total no. of programs')) trainPrograms+=num(r[2]);
+    if(lbl.includes('total man hours')){
+      trainGroup+=num(r[2]);trainUganda+=num(r[3]);trainAPDL+=num(r[4]);
+      trainTanzania+=num(r[5]);trainRwanda+=num(r[6]);trainBurundi+=num(r[7]);trainKenya+=num(r[8]);
+    }
+    if(lbl.includes('total cost')) trainCost+=num(r[2]);
+  }
+
+  // ── Disciplinary ── (accumulate monthly + use quarterly summaries for pending/closed)
+  let dYTDCases=0,dYTDDism=0,dYTDWarn=0,dYTDPending=0,dYTDClosed=0;
+  for(let i=0;i<dA.length;i++){
+    const b=String(dA[i][1]||'').trim().toLowerCase();
+    if(b.includes('no. of cases')||b.includes('no of cases')||b==='cases') dYTDCases+=num(dA[i][2]);
+    if(b.includes('termination')||b.includes('dismissal')) dYTDDism+=num(dA[i][2]);
+    if(b.includes('warning letters')||b==='warnings') dYTDWarn+=num(dA[i][2]);
+    // Quarterly summary rows overwrite running pending/closed with authoritative figure
+    if((b.includes('dc report')||b.includes('fy25 dc'))&&!b.includes('discplinary')){
+      for(let j=i;j<Math.min(i+8,dA.length);j++){
+        const l=String(dA[j][1]||'').trim().toLowerCase();
+        if(l.includes('pending')) dYTDPending=num(dA[j][2]);
+        if(l.includes('closed case')||l===('closed')) dYTDClosed=num(dA[j][2]);
+      }
+    }
+  }
+
+  // ── MPC/BTO Ratio ──
+  const mpcMonthly=[];
+  let mpcLatestBUActual={Uganda:0,APDL:0,Tanzania:0,Rwanda:0,Burundi:0,Kenya:0};
+  let mpcLatestBUBudget={Uganda:0,APDL:0,Tanzania:0,Rwanda:0,Burundi:0,Kenya:0};
+  const MO_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  for(let i=0;i<mpA.length;i++){
+    const a=String(mpA[i][0]||'').trim();
+    if(MO_SHORT.includes(a)){
+      let budget=0,actual=0,fy24=0;
+      let buB={Uganda:0,APDL:0,Tanzania:0,Rwanda:0,Burundi:0,Kenya:0};
+      let buA={Uganda:0,APDL:0,Tanzania:0,Rwanda:0,Burundi:0,Kenya:0};
+      for(let j=i;j<Math.min(i+12,mpA.length);j++){
+        const lbl=String(mpA[j][1]||'').toLowerCase();
+        if(lbl.includes('ratio - budget')&&!lbl.includes('fy24')){
+          budget=num(mpA[j][2]);
+          buB={Uganda:num(mpA[j][4]),APDL:num(mpA[j][6]),Tanzania:num(mpA[j][8]),Rwanda:num(mpA[j][10]),Burundi:num(mpA[j][12]),Kenya:num(mpA[j][14])};
+        }
+        if(lbl.includes('ratio - actual')&&!lbl.includes('fy24')){
+          actual=num(mpA[j][2]);
+          buA={Uganda:num(mpA[j][4]),APDL:num(mpA[j][6]),Tanzania:num(mpA[j][8]),Rwanda:num(mpA[j][10]),Burundi:num(mpA[j][12]),Kenya:num(mpA[j][14])};
+        }
+        if(lbl.includes('fy24')&&lbl.includes('actual')) fy24=num(mpA[j][2]);
+      }
+      mpcMonthly.push({month:a,budget,actual,fy24,buActual:{...buA},buBudget:{...buB}});
+      mpcLatestBUActual=buA; mpcLatestBUBudget=buB;
+    }
+  }
+  const mpcLatest=mpcMonthly[mpcMonthly.length-1]||{budget:0,actual:0,fy24:0};
+  const mpcVariancePct=mpcLatest.budget>0?((mpcLatest.actual-mpcLatest.budget)/mpcLatest.budget*100).toFixed(1):0;
+
+  // ── Wellbeing ──
+  let wellbeingTotal=0;
+  for(let i=0;i<wA.length;i++){
+    if(String(wA[i][1]||'').trim().toUpperCase()==='TOTAL'){wellbeingTotal=num(wA[i][6]);break;}
+  }
+
+  // ── PMS ──
+  let pmsCompliance=0.93;
+  const pmsDepts={Commercial:0,'Supply Chain':0,Regulatory:0,Admin:0,Finance:0,ICT:0,'Internal Audit':0,Legal:0};
+  for(let i=0;i<pA.length;i++){
+    if(String(pA[i][2]||'').toLowerCase().includes('group completion rate')){
+      for(let c=2;c<8;c++){
+        const v=num(pA[i][c]);
+        if(v>0&&v<=1){pmsCompliance=v;break;}
+        if(v>1&&v<=100){pmsCompliance=v/100;break;}
+      }
+    }
+    if(String(pA[i][2]||'').toLowerCase().includes('% compliance')||String(pA[i][2]||'').toLowerCase()==='% compliance'){
+      const keys=Object.keys(pmsDepts);
+      [3,4,5,6,7,8,9,10].forEach((ci,ki)=>{
+        const v=num(pA[i][ci]); pmsDepts[keys[ki]]=v>1?v/100:v;
+      });
+    }
+  }
+
+  const ytdPromos=monthData.reduce((s,m)=>s+(m.promotions||0),0);
+  const ytdTransfers=monthData.reduce((s,m)=>s+(m.transfers||0),0);
+
+  return{
+    monthData,latest,prev,
+    turnoverMonthly,ytdTurnoverGroup,buTurnoverRates,
+    ytdPlanned,ytdUnplanned,ytdActual,recruitByBU,BUs,
+    trainGroup,trainUganda,trainAPDL,trainTanzania,trainRwanda,trainBurundi,trainKenya,trainCost,trainPrograms,
+    discYTDCases:dYTDCases,discYTDDismissals:dYTDDism,discYTDWarnings:dYTDWarn,
+    discYTDPending:dYTDPending,discYTDClosed:dYTDClosed,
+    wellbeingTotal,pmsCompliance,pmsDepts,
+    mpcMonthly,mpcLatest,mpcLatestBUActual,mpcLatestBUBudget,mpcVariancePct,
+    ytdPromos,ytdTransfers,
+  };
+}
+
+// ── RENDER ────────────────────────────────────────
+function renderDashboard(d,filename){
+  _D=d;
+  document.getElementById('drop-zone').style.display='none';
+  document.getElementById('dashboard').style.display='flex';
+  document.getElementById('last-updated').textContent='Loaded: '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  document.getElementById('footer-ts').textContent=filename+' · '+new Date().toLocaleString();
+  renderKPIs(d);
+  renderMpcTrendChart(d);
+  renderMpcBuChart(d);
+  renderTrendChart(d);
+  renderCountryChart(d);
+  renderStaffMixChart(d);
+  renderGenderChart(d);
+  renderTurnoverMonthChart(d);
+  renderWorkforceProfile(d);
+  renderRecruitChart(d);
+  renderHireExitChart(d);
+  renderTrainingChart(d);
+  renderDiscPanel(d);
+  renderPmsDeptChart(d);
+  renderWellbeingPanel(d);
+  renderTurnoverBUPanel(d);
+  renderExpatChart(d);
+  document.querySelectorAll('.kpi-card').forEach((el,i)=>{
+    el.style.animationDelay=`${i*60}ms`;el.classList.add('slide-up');
+  });
+}
+
+function renderKPIs(d){
+  const l=d.latest,p=d.prev;
+  const hcD=l.overallHC-(p.overallHC||0);
+  const dsD=l.directStaff-(p.directStaff||0);
+  const cards=[
+    {label:'Total Headcount',value:l.overallHC.toLocaleString(),sub:'Latest Month · Group',color:'--gold',delta:(hcD>=0?'+':'')+hcD,dc:hcD>=0?'up':'down'},
+    {label:'Direct Staff',value:l.directStaff.toLocaleString(),sub:((l.directStaff/Math.max(l.overallHC,1))*100).toFixed(1)+'% of total',color:'--blue',delta:(dsD>=0?'+':'')+dsD,dc:dsD>=0?'up':'down'},
+    {label:'Expatriates',value:l.expats,sub:((l.expats/Math.max(l.directStaff,1))*100).toFixed(1)+'% of direct',color:'--orange'},
+    {label:'New Hires YTD',value:d.ytdActual.toLocaleString(),sub:d.ytdPlanned+' planned · '+d.ytdUnplanned+' unplanned',color:'--green'},
+    {label:'YTD Turnover',value:(d.ytdTurnoverGroup*100).toFixed(1)+'%',sub:'Regrettable exits FY25',color:'--red'},
+  ];
+  document.getElementById('kpi-grid').innerHTML=cards.map(c=>`
+    <div class="kpi-card" style="border-top-color:var(${c.color})">
+      <div class="kpi-label">${c.label}</div>
+      <div class="kpi-value" style="color:var(${c.color})">${c.value}</div>
+      <div class="kpi-sub"><span>${c.sub}</span>${c.delta?`<span class="kpi-delta ${c.dc}">${c.delta}</span>`:''}</div>
+    </div>`).join('');
+  const mpcVar=parseFloat(d.mpcVariancePct);
+  const cards2=[
+    {label:'MPC/BTO — Actual',value:(d.mpcLatest.actual*100).toFixed(1)+'%',sub:'vs '+( d.mpcLatest.budget*100).toFixed(1)+'% budget',color:'--teal',delta:(mpcVar>=0?'+':'')+mpcVar+'%',dc:mpcVar<=0?'up':'down'},
+    {label:'MPC/BTO — FY24',value:(d.mpcLatest.fy24*100).toFixed(1)+'%',sub:'Prior year same month',color:'--purple'},
+    {label:'L&D Programmes',value:Math.round(d.trainPrograms),sub:Math.round(d.trainGroup).toLocaleString()+' man-hours YTD',color:'--blue'},
+    {label:'Promotions YTD',value:d.ytdPromos,sub:'Internal advancement',color:'--green'},
+    {label:'Transfers YTD',value:d.ytdTransfers,sub:'Cross-unit movement',color:'--orange'},
+  ];
+  document.getElementById('kpi-grid2').innerHTML=cards2.map(c=>`
+    <div class="kpi-card" style="border-top-color:var(${c.color});border-top-width:2px">
+      <div class="kpi-label">${c.label}</div>
+      <div class="kpi-value" style="color:var(${c.color});font-size:26px">${c.value}</div>
+      <div class="kpi-sub"><span>${c.sub}</span>${c.delta?`<span class="kpi-delta ${c.dc}">${c.delta}</span>`:''}</div>
+    </div>`).join('');
+}
+
+function renderTrendChart(d){
+  destroyChart('trend');
+  charts['trend']=new Chart(document.getElementById('trendChart').getContext('2d'),{
+    type:'line',
+    data:{
+      labels:d.monthData.map(m=>m.label),
+      datasets:[
+        {label:'Overall Headcount',data:d.monthData.map(m=>m.overallHC),borderColor:C.gold,backgroundColor:'rgba(201,168,76,0.08)',fill:true,tension:0.4,borderWidth:2.5,pointRadius:3,pointBackgroundColor:C.gold},
+        {label:'Direct Staff',data:d.monthData.map(m=>m.directStaff),borderColor:C.blue,backgroundColor:'rgba(79,195,247,0.06)',fill:true,tension:0.4,borderWidth:2,pointRadius:3,pointBackgroundColor:C.blue,borderDash:[4,2]},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{position:'top',labels:{color:'#7a9cc2',boxWidth:12,font:{size:10}}},
+        tooltip:{backgroundColor:'#111d30',borderColor:'#1e3560',borderWidth:1,titleColor:'#c9a84c',bodyColor:'#f0f4f8'},
+        datalabels:{display:false}
+      },
+      scales:{x:darkGrid(),y:{...darkGrid(),beginAtZero:false}}
+    }
+  });
+}
+
+function renderCountryChart(d){
+  destroyChart('country');
+  const countries=Object.keys(d.latest.byCountry);
+  const el=document.getElementById('countryChart');
+  el.style.cursor='pointer'; el.title='Click a bar to drill into country detail';
+  charts['country']=new Chart(el.getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:countries,
+      datasets:[{label:'Headcount',data:Object.values(d.latest.byCountry),backgroundColor:countries.map(c=>BU_COL[c]||C.muted),borderRadius:6,borderSkipped:false}]
+    },
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      onClick:(_,els)=>{if(els.length) drillCountry(countries[els[0].index]);},
+      plugins:{
+        legend:{display:false},
+        tooltip:{backgroundColor:'#111d30',borderColor:'#1e3560',borderWidth:1},
+        datalabels:{anchor:'end',align:'end',color:'#f0f4f8',font:{size:10,weight:'bold'},formatter:v=>v.toLocaleString()}
+      },
+      scales:{x:{...darkGrid(),beginAtZero:true},y:darkGrid()}
+    }
+  });
+}
+
+function renderGenderChart(d){
+  destroyChart('gender');
+  const l=d.latest,countries=Object.keys(l.directByCountry);
+  charts['gender']=new Chart(document.getElementById('genderChart').getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:countries,
+      datasets:[
+        {label:'Female',data:countries.map(c=>l.femaleByCountry[c]||0),backgroundColor:C.pink,borderRadius:3,stack:'g'},
+        {label:'Male',data:countries.map(c=>Math.max(0,(l.directByCountry[c]||0)-(l.femaleByCountry[c]||0))),backgroundColor:C.blue,borderRadius:3,stack:'g'}
+      ]
+    },
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:'#7a9cc2',boxWidth:10,font:{size:10}}},tooltip:{backgroundColor:'#111d30',borderColor:'#1e3560',borderWidth:1},datalabels:{display:false}},
+      scales:{x:{...darkGrid(),stacked:true},y:{...darkGrid(),stacked:true}}
+    }
+  });
+}
+
+function renderTurnoverMonthChart(d){
+  destroyChart('turnoverMonth');
+  charts['turnoverMonth']=new Chart(document.getElementById('turnoverMonthChart').getContext('2d'),{
+    type:'line',
+    data:{
+      labels:d.turnoverMonthly.map(m=>m.month),
+      datasets:[{label:'Turnover %',data:d.turnoverMonthly.map(m=>+(m.groupRate*100).toFixed(2)),borderColor:C.red,backgroundColor:'rgba(239,83,80,0.08)',fill:true,tension:0.4,borderWidth:2,pointRadius:3,pointBackgroundColor:C.red}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#111d30',borderColor:'#1e3560',borderWidth:1,callbacks:{label:c=>c.parsed.y.toFixed(2)+'%'}},datalabels:{display:false}},
+      scales:{x:darkGrid(),y:{...darkGrid(),ticks:{callback:v=>v+'%',color:'#7a9cc2'}}}
+    }
+  });
+}
+
+function renderWorkforceProfile(d){
+  const l=d.latest,ds=Math.max(l.directStaff,1);
+  const total=Math.max(l.overallHC,1);
+  const items=[
+    {label:'Nationals',value:l.nationals,color:C.teal,base:ds},
+    {label:'Expatriates',value:l.expats,color:C.orange,base:ds},
+    {label:'Principals',value:l.principals||0,color:C.blue,base:total},
+    {label:'Casuals',value:l.casuals||0,color:C.purple,base:total},
+    {label:'Below 40 yrs',value:l.below40,color:C.gold,base:ds},
+    {label:'5 yr+ Tenure',value:l.tenure5plus,color:C.green,base:ds},
+  ];
+  document.getElementById('workforce-profile').innerHTML=`
+    <div class="progress-list" style="margin-top:12px">
+      ${items.map(it=>`
+        <div class="progress-item">
+          <div class="progress-label"><span>${it.label}</span><span>${it.value} (${((it.value/it.base)*100).toFixed(0)}%)</span></div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(100,(it.value/it.base)*100).toFixed(1)}%;background:${it.color}"></div></div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function renderRecruitChart(d){
+  destroyChart('recruit');
+  const el=document.getElementById('recruitChart');
+  el.style.cursor='pointer'; el.title='Click a BU to see recruitment detail';
+  charts['recruit']=new Chart(el.getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:d.BUs,
+      datasets:[
+        {label:'Planned',data:d.BUs.map(b=>d.recruitByBU[b]?.planned||0),backgroundColor:'rgba(171,71,188,0.6)',borderColor:C.purple,borderWidth:1,borderRadius:4},
+        {label:'Actual',data:d.BUs.map(b=>d.recruitByBU[b]?.actual||0),backgroundColor:'rgba(102,187,106,0.7)',borderColor:C.green,borderWidth:1,borderRadius:4},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      onClick:(_,els)=>{if(els.length) drillBURecruit(d.BUs[els[0].index]);},
+      plugins:{legend:{position:'bottom',labels:{color:'#7a9cc2',boxWidth:10,font:{size:10}}},tooltip:{backgroundColor:'#111d30',borderColor:'#1e3560',borderWidth:1},datalabels:{anchor:'end',align:'end',color:'#f0f4f8',font:{size:9},formatter:v=>v>0?v:''}},
+      scales:{x:darkGrid(),y:{...darkGrid(),beginAtZero:true}}
+    }
+  });
+}
+
+function renderHireExitChart(d){
+  destroyChart('hireExit');
+  charts['hireExit']=new Chart(document.getElementById('hireExitChart').getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:d.monthData.map(m=>m.label),
+      datasets:[
+        {label:'New Hires',data:d.monthData.map(m=>m.newHires),backgroundColor:'rgba(102,187,106,0.75)',borderRadius:3},
+        {label:'Exits',data:d.monthData.map(m=>m.exits),backgroundColor:'rgba(239,83,80,0.75)',borderRadius:3},
+        {label:'Promotions',data:d.monthData.map(m=>m.promotions||0),backgroundColor:'rgba(201,168,76,0.7)',borderRadius:3},
+        {label:'Transfers',data:d.monthData.map(m=>m.transfers||0),backgroundColor:'rgba(171,71,188,0.7)',borderRadius:3},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:'#7a9cc2',boxWidth:10,font:{size:10}}},tooltip:{backgroundColor:'#111d30',borderColor:'#1e3560',borderWidth:1},datalabels:{display:false}},
+      scales:{x:darkGrid(),y:{...darkGrid(),beginAtZero:true}}
+    }
+  });
+}
+
+function renderTrainingChart(d){
+  destroyChart('training');
+  const labels=['Uganda','APDL','Tanzania','Rwanda','Burundi','Kenya'];
+  const values=[d.trainUganda,d.trainAPDL,d.trainTanzania,d.trainRwanda,d.trainBurundi,d.trainKenya];
+  charts['training']=new Chart(document.getElementById('trainingChart').getContext('2d'),{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[{label:'Man-Hours',data:values,backgroundColor:labels.map(l=>BU_COL[l]||C.muted),borderRadius:6}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#111d30',borderColor:'#1e3560',borderWidth:1},datalabels:{anchor:'end',align:'end',color:'#f0f4f8',font:{size:9,weight:'bold'},formatter:v=>v>0?Math.round(v).toLocaleString():''}},
+      scales:{x:darkGrid(),y:{...darkGrid(),beginAtZero:true}}
+    }
+  });
+}
+
+function renderDiscPanel(d){
+  const total=d.discYTDCases, dism=d.discYTDDismissals, warn=d.discYTDWarnings;
+  const pending=d.discYTDPending, closed=d.discYTDClosed;
+  const dismRate=total>0?Math.round((dism/total)*100):0;
+  const closedPct=total>0?Math.min(100,Math.round((closed/total)*100)):0;
+  document.getElementById('disc-panel').innerHTML=`
+    <div class="stat-grid" style="margin-top:14px">
+      <div class="stat-item" style="color:${C.orange}"><div class="s-label">Total Cases</div><div class="s-value" style="color:${C.orange}">${total}</div><div class="s-sub">FY25 YTD</div></div>
+      <div class="stat-item" style="color:${C.red}"><div class="s-label">Dismissals</div><div class="s-value" style="color:${C.red}">${dism}</div><div class="s-sub">Dismis. rate: ${dismRate}%</div></div>
+      <div class="stat-item" style="color:${C.blue}"><div class="s-label">Warnings</div><div class="s-value" style="color:${C.blue}">${warn}</div><div class="s-sub">FY25 YTD</div></div>
+      <div class="stat-item" style="color:${C.green}"><div class="s-label">Closed</div><div class="s-value" style="color:${C.green}">${closed}</div><div class="s-sub">${pending} pending</div></div>
+    </div>`;
+}
+
+function renderWellbeingPanel(d){
+  document.getElementById('wellbeing-panel').innerHTML=`
+    <div style="margin-top:14px;display:flex;flex-direction:column;gap:14px">
+      <div class="stat-item" style="color:${C.purple}"><div class="s-label">Wellbeing Spend</div><div class="s-value" style="color:${C.purple}">$${Math.round(d.wellbeingTotal).toLocaleString()}</div><div class="s-sub">FY25 YTD · All BUs</div></div>
+      <div class="stat-item" style="color:${C.green}"><div class="s-label">PMS Compliance</div><div class="s-value" style="color:${C.green}">${Math.round(d.pmsCompliance*100)}%</div><div class="s-sub">KPI sign-off · Group</div></div>
+      <div class="progress-item" style="margin-top:4px">
+        <div class="progress-label"><span style="font-size:10px;color:var(--muted)">PMS Group Rate</span><span style="font-size:10px;font-weight:700">${Math.round(d.pmsCompliance*100)}%</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${(d.pmsCompliance*100).toFixed(1)}%;background:${C.green}"></div></div>
+      </div>
+    </div>`;
+}
+
+function renderTurnoverBUPanel(d){
+  const bus=Object.entries(d.buTurnoverRates).sort((a,b)=>b[1]-a[1]);
+  const maxR=Math.max(...bus.map(b=>b[1]),0.01);
+  document.getElementById('turnover-bu-panel').innerHTML=bus.map(([bu,rate])=>{
+    const pct=(rate*100).toFixed(1);
+    const barW=Math.min(100,(rate/maxR)*100).toFixed(1);
+    const col=rate>0.08?C.red:rate>0.05?C.orange:C.green;
+    return`<div class="progress-item" onclick="drillBUTurnover('${bu}')" style="cursor:pointer;padding:4px 6px;border-radius:6px;transition:background 0.15s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='none'" title="Click to see monthly trend for ${bu}">
+      <div class="progress-label"><span>${bu}</span><span style="color:${col}">${pct}% <span style="font-size:9px;color:#4a6785">↗ trend</span></span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${barW}%;background:${col}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderMpcTrendChart(d){
+  destroyChart('mpcTrend');
+  if(!d.mpcMonthly.length) return;
+  charts['mpcTrend']=new Chart(document.getElementById('mpcTrendChart').getContext('2d'),{
+    type:'line',
+    data:{
+      labels:d.mpcMonthly.map(m=>m.month),
+      datasets:[
+        {label:'Budget',data:d.mpcMonthly.map(m=>+(m.budget*100).toFixed(2)),borderColor:C.muted,borderDash:[4,2],borderWidth:1.5,pointRadius:2,tension:0.3,fill:false,datalabels:{display:false}},
+        {label:'Actual',data:d.mpcMonthly.map(m=>+(m.actual*100).toFixed(2)),borderColor:C.gold,backgroundColor:'rgba(201,168,76,0.08)',fill:true,borderWidth:2.5,pointRadius:3,tension:0.3,datalabels:{display:false}},
+        {label:'FY24',data:d.mpcMonthly.map(m=>+(m.fy24*100).toFixed(2)),borderColor:C.purple,borderDash:[2,3],borderWidth:1.5,pointRadius:2,tension:0.3,fill:false,datalabels:{display:false}},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{color:'#7a9cc2',boxWidth:12,font:{size:10}}},tooltip:{backgroundColor:'#111d30',borderColor:'#1e3560',borderWidth:1,callbacks:{label:c=>c.dataset.label+': '+c.parsed.y.toFixed(1)+'%'}}},
+      scales:{x:darkGrid(),y:{...darkGrid(),ticks:{callback:v=>v+'%',color:'#7a9cc2'}}}
+    }
+  });
+}
+
+function renderMpcBuChart(d){
+  destroyChart('mpcBu');
+  const bus=Object.keys(d.mpcLatestBUActual);
+  const el=document.getElementById('mpcBuChart');
+  el.style.cursor='pointer'; el.title='Click a BU to see monthly MPC/BTO trend';
+  charts['mpcBu']=new Chart(el.getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:bus,
+      datasets:[
+        {label:'Budget',data:bus.map(b=>+(d.mpcLatestBUBudget[b]*100).toFixed(1)),backgroundColor:'rgba(74,103,133,0.5)',borderRadius:3},
+        {label:'Actual',data:bus.map(b=>+(d.mpcLatestBUActual[b]*100).toFixed(1)),backgroundColor:bus.map(b=>d.mpcLatestBUActual[b]>d.mpcLatestBUBudget[b]?'rgba(239,83,80,0.75)':'rgba(102,187,106,0.75)'),borderRadius:3},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      onClick:(_,els)=>{if(els.length) drillBUMpc(bus[els[0].index]);},
+      plugins:{legend:{position:'top',labels:{color:'#7a9cc2',boxWidth:10,font:{size:10}}},tooltip:{backgroundColor:'#111d30',borderColor:'#1e3560',borderWidth:1,callbacks:{label:c=>c.dataset.label+': '+c.parsed.y.toFixed(1)+'%'}},datalabels:{anchor:'end',align:'end',color:'#f0f4f8',font:{size:9},formatter:v=>v>0?v.toFixed(1)+'%':''}},
+      scales:{x:darkGrid(),y:{...darkGrid(),ticks:{callback:v=>v+'%'},beginAtZero:true}}
+    }
+  });
+}
+
+function renderStaffMixChart(d){
+  destroyChart('staffMix');
+  const l=d.latest;
+  const ds=l.directStaff||0, pr=l.principals||0, ca=l.casuals||0;
+  charts['staffMix']=new Chart(document.getElementById('staffMixChart').getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:['Staffing Mix'],
+      datasets:[
+        {label:'Direct',data:[ds],backgroundColor:C.gold,borderRadius:3,stack:'s'},
+        {label:'Principals',data:[pr],backgroundColor:C.blue,borderRadius:3,stack:'s'},
+        {label:'Casuals',data:[ca],backgroundColor:C.teal,borderRadius:3,stack:'s'},
+      ]
+    },
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:'#7a9cc2',boxWidth:10,font:{size:10}}},tooltip:{backgroundColor:'#111d30',borderColor:'#1e3560',borderWidth:1},datalabels:{color:'#fff',font:{size:9,weight:'bold'},formatter:v=>v>0?v.toLocaleString():''}},
+      scales:{x:{...darkGrid(),stacked:true,ticks:{color:'#7a9cc2',font:{size:9}}},y:{...darkGrid(),stacked:true,display:false}}
+    }
+  });
+}
+
+function renderPmsDeptChart(d){
+  destroyChart('pmsDept');
+  const depts=Object.keys(d.pmsDepts).filter(k=>d.pmsDepts[k]>0);
+  if(!depts.length) return;
+  charts['pmsDept']=new Chart(document.getElementById('pmsDeptChart').getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:depts,
+      datasets:[{label:'Compliance %',data:depts.map(k=>Math.round(d.pmsDepts[k]*100)),backgroundColor:depts.map(k=>d.pmsDepts[k]>=0.95?C.green:d.pmsDepts[k]>=0.8?C.gold:C.red),borderRadius:4}]
+    },
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#111d30',borderColor:'#1e3560',borderWidth:1,callbacks:{label:c=>c.parsed.x+'%'}},datalabels:{anchor:'end',align:'end',color:'#f0f4f8',font:{size:9,weight:'bold'},formatter:v=>v+'%'}},
+      scales:{x:{...darkGrid(),min:0,max:105,ticks:{callback:v=>v+'%',color:'#7a9cc2'}},y:darkGrid()}
+    }
+  });
+}
+
+function renderExpatChart(d){
+  destroyChart('expat');
+  const l=d.latest;
+  const labels=Object.keys(l.expatByCountry).filter(k=>l.expatByCountry[k]>0);
+  const values=labels.map(k=>l.expatByCountry[k]);
+  const total=values.reduce((a,b)=>a+b,0);
+  charts['expat']=new Chart(document.getElementById('expatChart').getContext('2d'),{
+    type:'doughnut',
+    data:{
+      labels,
+      datasets:[{data:values,backgroundColor:labels.map(l=>BU_COL[l]||C.muted),borderColor:'#111d30',borderWidth:2,hoverOffset:8}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,cutout:'68%',
+      plugins:{
+        legend:{position:'bottom',labels:{color:'#7a9cc2',boxWidth:10,font:{size:10},padding:10}},
+        tooltip:{backgroundColor:'#111d30',borderColor:'#1e3560',borderWidth:1,callbacks:{label:c=>`${c.label}: ${c.raw} (${((c.raw/total)*100).toFixed(0)}%)`}},
+        datalabels:{color:'#fff',font:{size:10,weight:'bold'},formatter:v=>v>0?v:''}
+      }
+    }
+  });
+}
+// ── AI INSIGHTS ───────────────────────────────────────────
+function buildDataSummary(){
+  const d=_D;if(!d||!d.latest) return '';
+  const l=d.latest,ds=Math.max(l.directStaff,1),total=Math.max(l.overallHC,1);
+  const pct=v=>Math.round(v/ds*100);
+  const buTO=Object.entries(d.buTurnoverRates).map(([b,r])=>`${b} ${(r*100).toFixed(1)}%`).join(', ');
+  const buMpc=Object.entries(d.mpcLatestBUActual).filter(([,v])=>v>0).map(([b,v])=>`${b} ${(v*100).toFixed(1)}%`).join(', ');
+  const recr=d.BUs.map(b=>{const r=d.recruitByBU[b];return`${b} ${r.actual}/${r.planned}`;}).join(', ');
+  const pmsD=Object.entries(d.pmsDepts).filter(([,v])=>v>0).map(([k,v])=>`${k} ${Math.round(v*100)}%`).join(', ');
+  return `ABACUS GROUP HR DASHBOARD — FY25
+Period: ${d.monthData.length} months of data (${d.monthData[0]?.label||'?'} – ${d.monthData[d.monthData.length-1]?.label||'?'})
+
+HEADCOUNT
+Overall: ${l.overallHC?.toLocaleString()} | Direct staff: ${l.directStaff?.toLocaleString()} | Principals: ${l.principals||0} | Casuals: ${l.casuals||0}
+Female (direct): ${l.female} (${pct(l.female)}%) | Expatriates: ${l.expats} (${pct(l.expats)}%) | Nationals: ${l.nationals}
+Management: ${l.management} | Female in mgmt: ${l.femaleMgmt} (${Math.round(l.femaleMgmt/Math.max(l.management,1)*100)}%)
+Below 40 yrs: ${l.below40} (${pct(l.below40)}%) | 5+ yr tenure: ${l.tenure5plus} (${pct(l.tenure5plus)}%)
+
+TURNOVER (YTD regrettable exits)
+Group: ${(d.ytdTurnoverGroup*100).toFixed(1)}% | By BU: ${buTO}
+
+MPC/BTO RATIO (latest month)
+Group: actual ${(d.mpcLatest.actual*100).toFixed(1)}% vs budget ${(d.mpcLatest.budget*100).toFixed(1)}% (${d.mpcVariancePct}% variance) | FY24: ${(d.mpcLatest.fy24*100).toFixed(1)}%
+By BU: ${buMpc}
+
+RECRUITMENT (YTD planned/budgeted)
+Group: ${d.ytdActual} filled of ${d.ytdPlanned} planned (${d.ytdPlanned>0?Math.round(d.ytdActual/d.ytdPlanned*100):0}% fill rate) | Unplanned: ${d.ytdUnplanned}
+By BU planned/actual: ${recr}
+Promotions: ${d.ytdPromos} | Transfers: ${d.ytdTransfers}
+
+LEARNING & DEVELOPMENT (YTD)
+Programmes: ${Math.round(d.trainPrograms)} | Man-hours: ${Math.round(d.trainGroup).toLocaleString()} | Cost: $${Math.round(d.trainCost).toLocaleString()}
+By country (hrs): Uganda ${Math.round(d.trainUganda)}, APDL ${Math.round(d.trainAPDL)}, Tanzania ${Math.round(d.trainTanzania)}, Rwanda ${Math.round(d.trainRwanda)}, Burundi ${Math.round(d.trainBurundi)}, Kenya ${Math.round(d.trainKenya)}
+
+DISCIPLINARY (YTD)
+Cases: ${d.discYTDCases} | Dismissals: ${d.discYTDDism||d.discYTDDismissals} | Warnings: ${d.discYTDWarnings} | Closed: ${d.discYTDClosed} | Pending: ${d.discYTDPending}
+
+PERFORMANCE MANAGEMENT
+Group KPI compliance: ${Math.round(d.pmsCompliance*100)}%
+By dept: ${pmsD||'not available'}
+
+WELLBEING
+Total spend: $${Math.round(d.wellbeingTotal).toLocaleString()} YTD`;
+}
+
+function renderMd(txt){
+  return txt
+    .replace(/^## (.+)$/gm,'<h3 style="color:#c9a84c;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid #1e3560">$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong style="color:#fff">$1</strong>')
+    .replace(/^(\d+)\. (.+)$/gm,'<div style="display:flex;gap:10px;margin:6px 0;padding-left:4px"><span style="color:#c9a84c;font-weight:700;min-width:18px;flex-shrink:0">$1.</span><span>$2</span></div>')
+    .replace(/^[•\-\*] (.+)$/gm,'<div style="display:flex;gap:8px;margin:6px 0;padding-left:4px"><span style="color:#c9a84c;flex-shrink:0;margin-top:2px">▸</span><span>$1</span></div>')
+    .replace(/\n\n/g,'<div style="height:4px"></div>')
+    .replace(/\n/g,'');
+}
+
+async function generateInsights(){
+  if(!_D){alert('Please load an Excel file first.');return;}
+  const apiKey=document.getElementById('ai-api-key').value.trim();
+  if(!apiKey){document.getElementById('ai-api-key').focus();return;}
+  const btn=document.getElementById('ai-gen-btn');
+  const out=document.getElementById('ai-output');
+  btn.textContent='Analysing…';btn.disabled=true;btn.style.opacity='0.7';
+  out.style.display='block';
+  out.innerHTML='<div style="color:#4a6785;font-style:italic;padding:8px 0">Reading the data…</div>';
+  const prompt=`You are an expert HR analyst advising the Group CHRO of Abacus Group, a pan-African FMCG business operating across Uganda, APDL (Uganda principals/distribution), Tanzania, Rwanda, Burundi, and Kenya.
+
+Analyse the following HR dashboard data and provide concise, commercially-minded insights. Be specific with numbers — avoid generic HR commentary.
+
+${buildDataSummary()}
+
+Structure your response exactly as follows:
+
+## Headline
+One crisp sentence capturing the overall HR picture right now.
+
+## Positive Trends
+3–4 specific data-backed highlights worth noting.
+
+## Risk Areas
+3–4 concerns with supporting numbers. Flag anything that warrants immediate attention.
+
+## Recommended Actions
+4 prioritised actions for the CHRO, ordered by urgency. Be concrete and specific.
+
+## Watch List
+2–3 metrics to track closely next month and why.`;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1200,stream:true,messages:[{role:'user',content:prompt}]})
+    });
+    if(!resp.ok){const e=await resp.json();throw new Error(e.error?.message||resp.statusText);}
+    let txt='';out.innerHTML='';
+    const reader=resp.body.getReader(),dec=new TextDecoder();
+    while(true){
+      const {done,value}=await reader.read();if(done)break;
+      for(const line of dec.decode(value).split('\n')){
+        if(!line.startsWith('data:'))continue;
+        const raw=line.slice(5).trim();if(raw==='[DONE]')continue;
+        try{const ev=JSON.parse(raw);if(ev.delta?.text){txt+=ev.delta.text;out.innerHTML=renderMd(txt);}}catch(e){}
+      }
+    }
+    btn.textContent='Regenerate';
+  }catch(err){
+    out.innerHTML=`<div style="color:#ef5350;padding:8px 0">⚠ ${err.message}</div>`;
+    btn.textContent='Try Again';
+  }finally{btn.disabled=false;btn.style.opacity='1';}
+}
+</script>
+</body>
+</html>
